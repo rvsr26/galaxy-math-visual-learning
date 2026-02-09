@@ -1,0 +1,116 @@
+.game-menu {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+.difficulty-selector {
+    margin-bottom: 30px;
+    background: white;
+    padding: 10px 20px;
+    border-radius: 50px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.diff-btn {
+    background: #f0f0f0;
+    color: #555;
+    font-size: 1rem;
+    padding: 8px 16px;
+}
+
+.diff-btn:hover,
+.diff-btn:focus {
+    background: var(--primary-color);
+    color: white;
+}
+
+.menu-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 25px;
+    width: 100%;
+    max-width: 900px;
+    padding: 20px;
+}
+
+.menu-card {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    border-radius: 25px;
+    padding: 35px 25px;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border: 3px solid transparent;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    /* Softer shadow */
+    position: relative;
+    overflow: hidden;
+}
+
+.menu-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0) 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.menu-card:hover::before {
+    opacity: 1;
+}
+
+.menu-card:hover {
+    transform: translateY(-10px) scale(1.02);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+}
+
+.menu-card .icon {
+    font-size: 4rem;
+    margin-bottom: 15px;
+    transition: transform 0.5s ease;
+}
+
+.menu-card:hover .icon {
+    transform: rotate(15deg) scale(1.2);
+}
+
+.menu-card h2 {
+    margin: 10px 0;
+    color: var(--secondary-color);
+}
+
+.menu-card.count {
+    border-color: #EF5350;
+}
+
+.menu-card.math {
+    border-color: #42A5F5;
+}
+
+.menu-card.pattern {
+    border-color: #66BB6A;
+}
+
+.menu-card.memory {
+    border-color: #FFA726;
+}
+
+.menu-card.sequence {
+    border-color: #AB47BC;
+}
+
+.menu-card.learn {
+    border-color: #26C6DA;
+}

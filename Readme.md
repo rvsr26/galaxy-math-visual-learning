@@ -22,7 +22,7 @@ Email-t_senthilkumar@cb.amrita.edu
 
 ## 3. Product Details
 **GitHub Repository:** https://github.com/rvsr26/galaxy-math-visual-learning  
-
+**Deployed Link:**https://galaxy-math-visual-learning.vercel.app/
 ---
 
 ## 4. Use Case: Visual Math Learning for Autism
@@ -104,6 +104,5 @@ Visualization reduces cognitive load by externalizing memory and processing. For
 ---
 
 ## 11. Final Summary
-**Lab Name:** [LAB_NAME] 
-**Project URL:** [DEPLOYED_URL_IF_ANY] or `http://localhost:3000`  
+**Project URL:** `(https://galaxy-math-visual-learning.vercel.app/)`  
 **Professor:** Dr. T. Senthil Kumar  

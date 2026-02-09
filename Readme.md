@@ -7,8 +7,8 @@
 ---
 
 ## 2. Course Details
-**Course Code:** [23CSE461]  
-**Course Name:** [Full Stack Frameworks]  
+Course Code:[23CSE461]  
+Course Name:[Full Stack Frameworks]  
 
 **Course Teacher:**  
 **Dr. T. Senthil Kumar**  
@@ -104,5 +104,5 @@ Visualization reduces cognitive load by externalizing memory and processing. For
 ---
 
 ## 11. Final Summary
-**Project URL:** `(https://galaxy-math-visual-learning.vercel.app/)`  
+**Project URL:** `[https://galaxy-math-visual-learning.vercel.app/]`  
 **Professor:** Dr. T. Senthil Kumar  

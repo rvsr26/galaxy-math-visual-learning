@@ -109,6 +109,5 @@ Visualization reduces cognitive load by externalizing memory and processing. For
 ---
 
 ## 11. Final Summary
-**Lab Name:** Web Technologies Lab  
 **Project URL:** https://galaxy-math-visual-learning.vercel.app/  
 **Professor:** Dr. T. Senthil Kumar  

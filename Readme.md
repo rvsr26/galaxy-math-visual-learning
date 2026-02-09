@@ -1,14 +1,14 @@
 # Lab Evaluation 2 - Visual Math Learning Portal
 
 ## 1. Student Details
-**Roll No:** [CB.SC.U4CSE23644]
-**Name:** [R.Vishnu Sathwick  ]
+**Roll No:** CB.SC.U4CSE23644  
+**Name:** R.Vishnu Sathwick  
 
 ---
 
 ## 2. Course Details
-Course Code:[23CSE461]
-Course Name:[Full Stack Frameworks]  
+**Course Code:** 23CSE461  
+**Course Name:** Full Stack Frameworks  
 
 **Course Teacher:**  
 **Dr. T. Senthil Kumar**  
@@ -19,9 +19,16 @@ Coimbatore - 641112
 Email-t_senthilkumar@cb.amrita.edu  
 
 ---
+
 ## 3. Product Details
 **GitHub Repository:** https://github.com/rvsr26/galaxy-math-visual-learning  
 **Deployed Link:** https://galaxy-math-visual-learning.vercel.app/
+
+**Collaborators:**  
+- **Academic:** [NAME]  
+- **Industry:** [NAME]  
+
+---
 
 ## 4. Use Case: Visual Math Learning for Autism
 
@@ -102,5 +109,6 @@ Visualization reduces cognitive load by externalizing memory and processing. For
 ---
 
 ## 11. Final Summary
-**Project URL:** `https://galaxy-math-visual-learning.vercel.app/`  
+**Lab Name:** Web Technologies Lab  
+**Project URL:** https://galaxy-math-visual-learning.vercel.app/  
 **Professor:** Dr. T. Senthil Kumar  

@@ -1,56 +1,111 @@
+/* GameMenu — unified dark theme */
 .game-menu {
     display: flex;
     flex-direction: column;
     align-items: center;
     width: 100%;
+    padding: 30px 20px;
+    min-height: calc(100vh - 60px);
+    font-family: var(--font);
+}
+
+.game-menu h1 {
+    font-size: 2.4rem;
+    margin-bottom: 6px;
+}
+
+.game-menu>p {
+    color: var(--text-muted);
+    font-size: 16px;
+    margin: 0 0 20px;
+}
+
+.streak-display {
+    background: linear-gradient(135deg, #f59e0b, #ef4444);
+    color: #fff;
+    padding: 10px 24px;
+    border-radius: 30px;
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+    animation: pulse 2s infinite;
 }
 
 .difficulty-selector {
-    margin-bottom: 30px;
-    background: white;
-    padding: 10px 20px;
+    margin-bottom: 28px;
+    background: var(--glass-bg);
+    border: var(--glass-border);
+    padding: 8px 16px;
     border-radius: 50px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     display: flex;
-    gap: 10px;
+    gap: 8px;
     align-items: center;
+    backdrop-filter: blur(10px);
+}
+
+.difficulty-selector span {
+    color: var(--text-muted);
+    font-size: 14px;
+    font-weight: 600;
 }
 
 .diff-btn {
-    background: #f0f0f0;
-    color: #555;
-    font-size: 1rem;
-    padding: 8px 16px;
+    background: transparent !important;
+    color: var(--text-muted) !important;
+    font-size: 13px !important;
+    padding: 8px 16px !important;
+    border-radius: 30px !important;
+    border: 1px solid transparent !important;
+    box-shadow: none !important;
+    font-weight: 600 !important;
+    font-family: var(--font) !important;
+    transition: all 0.25s !important;
 }
 
 .diff-btn:hover,
 .diff-btn:focus {
-    background: var(--primary-color);
-    color: white;
+    background: var(--primary-glow) !important;
+    border-color: var(--primary) !important;
+    color: #fff !important;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+.diff-btn.easy {
+    color: var(--success) !important;
+}
+
+.diff-btn.medium {
+    color: var(--accent) !important;
+}
+
+.diff-btn.hard {
+    color: var(--danger) !important;
 }
 
 .menu-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 25px;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
     width: 100%;
     max-width: 900px;
-    padding: 20px;
+    padding: 0 10px;
 }
 
 .menu-card {
-    background: rgba(255, 255, 255, 0.85);
+    background: var(--glass-bg);
     backdrop-filter: blur(12px);
-    border-radius: 25px;
-    padding: 35px 25px;
+    border-radius: var(--radius-lg);
+    padding: 32px 20px;
     cursor: pointer;
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    border: 3px solid transparent;
+    transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border: var(--glass-border);
+    border-top: 3px solid transparent;
     display: flex;
     flex-direction: column;
     align-items: center;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-    /* Softer shadow */
+    box-shadow: var(--glass-shadow);
     position: relative;
     overflow: hidden;
 }
@@ -58,13 +113,10 @@
 .menu-card::before {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0) 100%);
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.06) 0%, transparent 100%);
     opacity: 0;
-    transition: opacity 0.3s ease;
+    transition: opacity 0.3s;
 }
 
 .menu-card:hover::before {
@@ -72,45 +124,61 @@
 }
 
 .menu-card:hover {
-    transform: translateY(-10px) scale(1.02);
-    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
 }
 
 .menu-card .icon {
-    font-size: 4rem;
-    margin-bottom: 15px;
-    transition: transform 0.5s ease;
+    font-size: 3.5rem;
+    margin-bottom: 12px;
+    transition: transform 0.4s ease;
 }
 
 .menu-card:hover .icon {
-    transform: rotate(15deg) scale(1.2);
+    transform: rotate(10deg) scale(1.2);
 }
 
 .menu-card h2 {
-    margin: 10px 0;
-    color: var(--secondary-color);
+    margin: 8px 0 6px;
+    font-size: 1.2rem;
+    color: var(--text);
 }
 
+.menu-card p {
+    color: var(--text-muted);
+    font-size: 13px;
+    margin: 0;
+}
+
+/* Card accent colors */
 .menu-card.count {
-    border-color: #EF5350;
+    border-top-color: #f87171;
 }
 
 .menu-card.math {
-    border-color: #42A5F5;
+    border-top-color: #60a5fa;
 }
 
 .menu-card.pattern {
-    border-color: #66BB6A;
+    border-top-color: #34d399;
 }
 
 .menu-card.memory {
-    border-color: #FFA726;
+    border-top-color: #fbbf24;
 }
 
 .menu-card.sequence {
-    border-color: #AB47BC;
+    border-top-color: #c084fc;
 }
 
 .menu-card.learn {
-    border-color: #26C6DA;
+    border-top-color: #22d3ee;
+}
+
+.menu-card.leaderboard {
+    border-top-color: #fbbf24;
+}
+
+.menu-card.about {
+    border-top-color: #818cf8;
 }

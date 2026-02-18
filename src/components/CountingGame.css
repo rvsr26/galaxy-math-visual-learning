@@ -1,109 +1,132 @@
-.game-container {
+/* CountingGame — enhanced autism-friendly */
+.game-topbar {
     display: flex;
-    flex-direction: column;
     align-items: center;
+    gap: 12px;
     width: 100%;
+    max-width: 700px;
+    justify-content: space-between;
 }
 
+.sound-toggle {
+    background: var(--glass-bg) !important;
+    border: var(--glass-border) !important;
+    color: var(--text) !important;
+    padding: 10px 14px !important;
+    border-radius: var(--radius-sm) !important;
+    font-size: 18px !important;
+    cursor: pointer;
+    box-shadow: none !important;
+    transition: background 0.25s !important;
+    font-family: var(--font) !important;
+}
+
+.sound-toggle:hover {
+    background: rgba(255, 255, 255, 0.15) !important;
+    transform: none !important;
+}
+
+/* Progress bar */
+.count-progress-wrap {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    max-width: 500px;
+}
+
+.count-progress-bar {
+    flex: 1;
+    height: 12px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    overflow: hidden;
+    border: var(--glass-border);
+}
+
+.count-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
+    border-radius: 10px;
+    transition: width 0.3s ease;
+    box-shadow: 0 0 10px var(--primary-glow);
+}
+
+.count-progress-label {
+    color: var(--text-muted);
+    font-size: 14px;
+    font-weight: 700;
+    min-width: 48px;
+    text-align: right;
+}
+
+/* Counting area */
 .counting-area {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 20px;
-    min-height: 250px;
-    padding: 30px;
-    background: rgba(255, 255, 255, 0.6);
-    border-radius: 40px;
-    box-shadow: inset 0 0 30px rgba(255, 255, 255, 0.8), 0 10px 20px rgba(0, 0, 0, 0.05);
-    border: 2px dashed rgba(255, 255, 255, 0.5);
-    margin: 20px 0;
-    width: 90%;
-    max-width: 700px;
-    transition: all 0.5s ease;
+    gap: 12px;
+    background: var(--glass-bg);
+    border: var(--glass-border);
+    border-radius: var(--radius-lg);
+    padding: 28px;
+    max-width: 600px;
+    width: 100%;
+    min-height: 120px;
+    box-shadow: var(--glass-shadow);
 }
 
-.count-item {
-    font-size: 5rem;
-    animation: bounceIn 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) backwards;
-    filter: drop-shadow(0 5px 5px rgba(0, 0, 0, 0.1));
+/* Each emoji is a tappable button */
+.count-item-btn {
+    background: rgba(255, 255, 255, 0.06) !important;
+    border: 2px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 16px !important;
+    width: 72px !important;
+    height: 72px !important;
+    font-size: 2.4rem !important;
     cursor: pointer;
-    transition: transform 0.2s;
-}
-
-.count-item:hover {
-    transform: scale(1.2) rotate(10deg);
-}
-
-@keyframes bounceIn {
-    0% {
-        transform: scale(0);
-        opacity: 0;
-    }
-
-    60% {
-        transform: scale(1.1);
-    }
-
-    100% {
-        transform: scale(1);
-        opacity: 1;
-    }
-}
-
-.options-container {
-    display: flex;
-    gap: 25px;
-    margin-top: 30px;
-}
-
-.option-btn {
-    font-size: 2.5rem;
-    padding: 20px;
-    background: white;
-    border: none;
-    color: var(--secondary-color);
-    border-radius: 50%;
-    width: 100px;
-    height: 100px;
+    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+    animation: popIn 0.4s ease both;
+    box-shadow: none !important;
+    padding: 0 !important;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: 900;
-    box-shadow: 0 10px 20px rgba(78, 205, 196, 0.3), inset 0 -5px 10px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    font-family: inherit !important;
 }
 
-.option-btn:hover {
-    background: var(--secondary-color);
-    color: white;
-    transform: scale(1.1) translateY(-10px);
-    box-shadow: 0 15px 30px rgba(78, 205, 196, 0.4);
+.count-item-btn:hover:not(.tapped) {
+    transform: scale(1.15) !important;
+    background: rgba(167, 139, 250, 0.15) !important;
+    border-color: var(--primary) !important;
+    box-shadow: 0 0 16px var(--primary-glow) !important;
 }
 
-.message {
-    margin-top: 30px;
-    font-size: 2rem;
-    font-weight: bold;
-    animation: popIn 0.5s ease;
-    min-height: 50px;
-    padding: 10px 30px;
-    background: rgba(255, 255, 255, 0.9);
-    border-radius: 50px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-    color: var(--primary-color);
+.count-item-btn.tapped {
+    background: linear-gradient(135deg, rgba(167, 139, 250, 0.3), rgba(96, 165, 250, 0.3)) !important;
+    border-color: var(--primary) !important;
+    box-shadow: 0 0 20px var(--primary-glow) !important;
+    transform: scale(0.95) !important;
+    filter: brightness(1.2);
 }
 
-.score-board {
-    position: absolute;
-    top: 30px;
-    right: 30px;
-    background: var(--accent-color);
-    padding: 15px 30px;
-    border-radius: 30px;
-    font-size: 1.5rem;
-    font-weight: 900;
-    color: #ae8b00;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-    z-index: 100;
-    border: 3px solid white;
+/* Option buttons — correct/wrong states */
+.option-btn.correct {
+    background: rgba(52, 211, 153, 0.25) !important;
+    border-color: var(--success) !important;
+    color: var(--success) !important;
+    box-shadow: 0 0 20px rgba(52, 211, 153, 0.4) !important;
+}
+
+.option-btn.wrong {
+    background: rgba(248, 113, 113, 0.2) !important;
+    border-color: var(--danger) !important;
+    color: var(--danger) !important;
+    animation: shake 0.4s ease !important;
+}
+
+.message.success {
+    color: var(--success);
+    background: rgba(52, 211, 153, 0.15);
+    border-color: rgba(52, 211, 153, 0.35);
 }

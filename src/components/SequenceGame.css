@@ -1,83 +1,121 @@
-.simon-board {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 30px;
-    max-width: 500px;
-    margin: 40px auto;
-    padding: 40px;
-    background: #2D3436;
-    border-radius: 50%;
-    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.4), inset 0 0 50px rgba(0, 0, 0, 0.5);
-    border: 15px solid #636e72;
-    position: relative;
+/* SequenceGame — enhanced autism-friendly */
+.simon-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    max-width: 400px;
 }
 
-.simon-board::after {
-    content: 'SIMON';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: #2D3436;
-    color: white;
-    padding: 10px 20px;
+.simon-step-indicator {
+    min-height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.simon-step-indicator span {
+    background: rgba(167, 139, 250, 0.15);
+    border: 1px solid rgba(167, 139, 250, 0.3);
+    color: var(--primary);
+    padding: 6px 18px;
     border-radius: 20px;
-    font-weight: bold;
-    letter-spacing: 2px;
-    pointer-events: none;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+    font-size: 14px;
+    font-weight: 700;
+    animation: popIn 0.3s ease;
+}
+
+.simon-board {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    width: 280px;
+    height: 280px;
 }
 
 .simon-btn {
-    width: 160px;
-    height: 160px;
-    border-radius: 20px;
+    border-radius: var(--radius-md);
     cursor: pointer;
-    transition: all 0.1s ease;
-    opacity: 0.5;
-    border: none;
-    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
+    transition: all 0.15s ease;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    opacity: 0.55;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
 }
 
-.simon-btn:hover {
-    transform: scale(1.02);
-    opacity: 0.7;
+.simon-btn.red {
+    background: linear-gradient(135deg, #ef4444, #b91c1c);
+}
+
+.simon-btn.blue {
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+}
+
+.simon-btn.green {
+    background: linear-gradient(135deg, #22c55e, #15803d);
+}
+
+.simon-btn.yellow {
+    background: linear-gradient(135deg, #eab308, #a16207);
+}
+
+.simon-btn:hover:not(.disabled) {
+    opacity: 0.8;
+    transform: scale(1.04);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
 }
 
 .simon-btn.active {
     opacity: 1;
-    transform: scale(0.98);
-    box-shadow: 0 0 50px currentColor, inset 0 0 20px rgba(255, 255, 255, 0.5);
-    z-index: 10;
+    transform: scale(1.1);
+    box-shadow: 0 0 35px rgba(255, 255, 255, 0.5);
+    border-color: rgba(255, 255, 255, 0.7);
 }
 
-.simon-btn.red {
-    background-color: #FF5252;
-    color: #FF5252;
-    border-top-left-radius: 100%;
+.simon-btn.disabled {
+    cursor: not-allowed;
+    opacity: 0.35;
 }
 
-.simon-btn.blue {
-    background-color: #448AFF;
-    color: #448AFF;
-    border-top-right-radius: 100%;
+/* Controls row */
+.simon-controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
 }
 
-.simon-btn.green {
-    background-color: #69F0AE;
-    color: #69F0AE;
-    border-bottom-left-radius: 100%;
+.replay-btn {
+    background: rgba(251, 191, 36, 0.12) !important;
+    border: 1px solid rgba(251, 191, 36, 0.3) !important;
+    color: #fbbf24 !important;
+    padding: 10px 22px !important;
+    border-radius: 30px !important;
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    cursor: pointer;
+    box-shadow: none !important;
+    transition: all 0.25s !important;
+    font-family: var(--font) !important;
 }
 
-.simon-btn.yellow {
-    background-color: #FFD740;
-    color: #FFD740;
-    border-bottom-right-radius: 100%;
+.replay-btn:hover:not(:disabled) {
+    background: rgba(251, 191, 36, 0.22) !important;
+    transform: none !important;
 }
 
-@media (max-width: 500px) {
-    .simon-btn {
-        width: 110px;
-        height: 110px;
-    }
+.replay-btn.used,
+.replay-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.mistake-indicator {
+    color: var(--danger);
+    font-size: 13px;
+    font-weight: 700;
+    background: rgba(248, 113, 113, 0.1);
+    border: 1px solid rgba(248, 113, 113, 0.25);
+    padding: 6px 16px;
+    border-radius: 20px;
 }

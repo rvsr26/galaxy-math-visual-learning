@@ -1,57 +1,99 @@
-
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import './LearningMode.css';
+import { useSound } from './useSound';
+
+const FUN_FACTS = {
+    1: "The Sun is 1 star at the center of our Solar System! ☀️",
+    2: "Earth has 2 poles — North and South! 🌍",
+    3: "Mars has 3 volcanoes taller than Everest! 🚀",
+    4: "Jupiter has 4 large moons called the Galilean moons! 🪐",
+    5: "Saturn has rings made of 5 types of ice and rock! 🪐",
+    6: "A comet's tail can be 6 million km long! 💫",
+    7: "There are 7 colors in a rainbow seen from space! 🌈",
+    8: "Light takes 8 minutes to travel from the Sun to Earth! ☀️",
+    9: "Saturn has 9 main ring groups! 🪐",
+    10: "Our Solar System has 10 known dwarf planets! 🌌",
+};
+
+const LEARNING_DATA = [
+    { num: 1, text: "One", items: ["☀️"], emoji: "☀️" },
+    { num: 2, text: "Two", items: ["🌍", "🌙"], emoji: "🌙" },
+    { num: 3, text: "Three", items: ["🪐", "⭐", "🚀"], emoji: "🚀" },
+    { num: 4, text: "Four", items: ["🌟", "🌟", "🌟", "🌟"], emoji: "🌟" },
+    { num: 5, text: "Five", items: ["🪐", "🪐", "🪐", "🪐", "🪐"], emoji: "🪐" },
+    { num: 6, text: "Six", items: ["⭐", "⭐", "⭐", "⭐", "⭐", "⭐"], emoji: "⭐" },
+    { num: 7, text: "Seven", items: ["💫", "💫", "💫", "💫", "💫", "💫", "💫"], emoji: "💫" },
+    { num: 8, text: "Eight", items: ["🛸", "🛸", "🛸", "🛸", "🛸", "🛸", "🛸", "🛸"], emoji: "🛸" },
+    { num: 9, text: "Nine", items: ["🌌", "🌌", "🌌", "🌌", "🌌", "🌌", "🌌", "🌌", "🌌"], emoji: "🌌" },
+    { num: 10, text: "Ten", items: ["🚀", "🚀", "🚀", "🚀", "🚀", "🚀", "🚀", "🚀", "🚀", "🚀"], emoji: "🚀" },
+];
 
 const LearningMode = ({ onBack }) => {
-    const [activeCard, setActiveCard] = useState(1);
+    const [activeNum, setActiveNum] = useState(1);
+    const [soundOn, setSoundOn] = useState(true);
+    const [itemSpoken, setItemSpoken] = useState(null);
+    const { speak } = useSound(soundOn);
 
-    const learningData = [
-        { num: 1, text: "One", items: ["🍎"], color: "#FFEBEE" },
-        { num: 2, text: "Two", items: ["🍎", "🍎"], color: "#E3F2FD" },
-        { num: 3, text: "Three", items: ["🍎", "🍎", "🍎"], color: "#E8F5E9" },
-        { num: 4, text: "Four", items: ["🍎", "🍎", "🍎", "🍎"], color: "#FFF3E0" },
-        { num: 5, text: "Five", items: ["🍎", "🍎", "🍎", "🍎", "🍎"], color: "#F3E5F5" },
-        { num: 6, text: "Six", items: ["🎈", "🎈", "🎈", "🎈", "🎈", "🎈"], color: "#E0F7FA" },
-        { num: 7, text: "Seven", items: ["🎈", "🎈", "🎈", "🎈", "🎈", "🎈", "🎈"], color: "#FBE9E7" },
-        { num: 8, text: "Eight", items: ["⭐", "⭐", "⭐", "⭐", "⭐", "⭐", "⭐", "⭐"], color: "#FFF8E1" },
-        { num: 9, text: "Nine", items: ["⭐", "⭐", "⭐", "⭐", "⭐", "⭐", "⭐", "⭐", "⭐"], color: "#F1F8E9" },
-        { num: 10, text: "Ten", items: ["⭐", "⭐", "⭐", "⭐", "⭐", "⭐", "⭐", "⭐", "⭐", "⭐"], color: "#E1F5FE" }
-    ];
+    const current = LEARNING_DATA[activeNum - 1];
 
-    const speak = (text) => {
-        const utterance = new SpeechSynthesisUtterance(text);
-        window.speechSynthesis.speak(utterance);
+    const handleCardSelect = useCallback((data) => {
+        setActiveNum(data.num);
+        setItemSpoken(null);
+        speak(`${data.num}. ${data.text}`);
+    }, [speak]);
+
+    const handleSpeakNumber = () => {
+        speak(`${current.num}. ${current.text}. ${FUN_FACTS[current.num]}`);
     };
 
-    const handleCardClick = (data) => {
-        setActiveCard(data.num);
-        speak(`${data.text}. ${data.num}`);
+    const handleItemClick = (item, index) => {
+        setItemSpoken(index);
+        speak(`${index + 1}`);
+        setTimeout(() => setItemSpoken(null), 800);
     };
 
     return (
-        <div className="learning-container">
-            <button className="back-btn" onClick={onBack}>⬅ Back</button>
-            <h2>Learn Numbers! 📚</h2>
+        <div className="game-container">
+            <div className="game-topbar">
+                <button className="back-btn" onClick={onBack}>⬅ Back</button>
+                <h2 style={{ margin: 0, fontSize: '1.2rem' }}>Learn Numbers! 📚</h2>
+                <button className="sound-toggle" onClick={() => setSoundOn(s => !s)}>{soundOn ? '🔊' : '🔇'}</button>
+            </div>
 
-            <div className="main-card" style={{ backgroundColor: learningData[activeCard - 1].color }}>
-                <div className="number-big">{activeCard}</div>
-                <div className="word-big">{learningData[activeCard - 1].text}</div>
+            <div className="main-card">
+                <div className="number-big">{current.num}</div>
+                <div className="word-big">{current.text}</div>
+
                 <div className="items-container">
-                    {learningData[activeCard - 1].items.map((item, i) => (
-                        <span key={i} className="learn-item" style={{ animationDelay: `${i * 0.1}s` }}>
+                    {current.items.map((item, i) => (
+                        <button
+                            key={i}
+                            className={`learn-item-btn ${itemSpoken === i ? 'spoken' : ''}`}
+                            onClick={() => handleItemClick(item, i)}
+                            style={{ animationDelay: `${i * 0.08}s` }}
+                            aria-label={`Item ${i + 1}`}
+                        >
                             {item}
-                        </span>
+                        </button>
                     ))}
                 </div>
+
+                <button className="speak-btn" onClick={handleSpeakNumber}>
+                    🔊 Hear it!
+                </button>
+            </div>
+
+            <div className="fun-fact-box">
+                💡 {FUN_FACTS[current.num]}
             </div>
 
             <div className="thumbnails-scroll">
-                {learningData.map(data => (
+                {LEARNING_DATA.map(data => (
                     <button
                         key={data.num}
-                        className={`thumb-btn ${activeCard === data.num ? 'active' : ''}`}
-                        onClick={() => handleCardClick(data)}
-                        style={{ backgroundColor: data.color }}
+                        className={`thumb-btn ${activeNum === data.num ? 'active' : ''}`}
+                        onClick={() => handleCardSelect(data)}
+                        aria-label={`Number ${data.num}`}
                     >
                         {data.num}
                     </button>

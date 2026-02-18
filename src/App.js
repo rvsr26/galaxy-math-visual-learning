@@ -2,6 +2,8 @@
 import React, { useState, useEffect } from "react";
 import "./App.css";
 import GameMenu from "./components/GameMenu";
+import GalaxyMap from "./components/GalaxyMap";
+import AvatarStation from "./components/AvatarStation";
 import CountingGame from "./components/CountingGame";
 import MathGame from "./components/MathGame";
 import PatternGame from "./components/PatternGame";
@@ -12,6 +14,7 @@ import AuthPage from "./components/AuthPage";
 import Leaderboard from "./components/Leaderboard";
 import AboutPage from "./components/AboutPage";
 import Navbar from "./components/Navbar";
+import { useSound } from "./components/useSound";
 
 const API = 'http://localhost:5000/api/scores';
 
@@ -22,18 +25,38 @@ export default function App() {
   const [showSplash, setShowSplash] = useState(true);
   const [user, setUser] = useState(null);
   const [dark, setDark] = useState(true);
+  const [coins, setCoins] = useState(0);
+  const [avatar, setAvatar] = useState({ helmet: 'default', suit: 'default', pet: 'none' });
+  const [unlockedPlanets, setUnlockedPlanets] = useState(['learning']);
+  const { playUnlock } = useSound();
 
   useEffect(() => {
     const token = localStorage.getItem('token');
-    const username = localStorage.getItem('username');
-    const streak = parseInt(localStorage.getItem('streak') || '0');
-    if (token && username) {
-      setUser({ username, streak });
+    if (token) {
+      fetchProfile(token);
     }
   }, []);
 
+  const fetchProfile = async (token) => {
+    try {
+      const res = await fetch(`http://localhost:5000/api/user/profile`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (data.username) {
+        setUser({ username: data.username, streak: data.streak });
+        setCoins(data.coins || 0);
+        setAvatar(data.avatar || { helmet: 'default', suit: 'default', pet: 'none' });
+        setUnlockedPlanets(data.unlockedPlanets || ['learning']);
+      }
+    } catch (err) {
+      console.error("Failed to fetch profile", err);
+    }
+  };
+
   const handleLogin = (userData) => {
     setUser(userData);
+    fetchProfile(localStorage.getItem('token'));
   };
 
   const handleLogout = () => {
@@ -59,12 +82,53 @@ export default function App() {
         setUser(prev => ({ ...prev, streak: data.streak }));
         localStorage.setItem('streak', data.streak);
       }
+
+      // Add coins logic (simple: 10 coins per win)
+      if (score >= 5) { // Threshold for winning
+        await fetch(`http://localhost:5000/api/user/add-coins`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+          body: JSON.stringify({ amount: 10 })
+        });
+        setCoins(prev => prev + 10);
+      }
+
+      // Unlock next planet logic
+      const planets = ['learning', 'counting', 'pattern', 'math', 'memory'];
+      const currentIdx = planets.indexOf(game);
+      if (currentIdx !== -1 && currentIdx < planets.length - 1) {
+        const nextPlanet = planets[currentIdx + 1];
+        if (!unlockedPlanets.includes(nextPlanet) && score >= 5) {
+          await fetch(`http://localhost:5000/api/user/unlock-planet`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify({ planet: nextPlanet })
+          });
+          setUnlockedPlanets(prev => [...prev, nextPlanet]);
+          playUnlock();
+        }
+      }
     } catch (err) {
       console.error('Failed to save score:', err);
     }
   };
 
-  // Navigate via navbar — 'leaderboard' | 'about' | null (home)
+  const handleClaimReward = async (amount) => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+    try {
+      await fetch(`http://localhost:5000/api/user/add-coins`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ amount })
+      });
+      setCoins(prev => prev + amount);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  // Navigate via navbar — 'leaderboard' | 'about' | 'avatar' | null (home)
   const handleNavNavigate = (pageId) => {
     setCurrentPage(pageId);
     setCurrentGame(null); // exit any active game
@@ -75,7 +139,11 @@ export default function App() {
   }
 
   if (!user) {
-    return <AuthPage onLogin={handleLogin} />;
+    return (
+      <div className={`App ${dark ? 'app-dark' : 'app-light'}`}>
+        <AuthPage onLogin={handleLogin} />
+      </div>
+    );
   }
 
   const renderContent = () => {
@@ -85,6 +153,18 @@ export default function App() {
     }
     if (currentPage === 'about') {
       return <AboutPage onBack={() => setCurrentPage(null)} />;
+    }
+    if (currentPage === 'avatar') {
+      return <AvatarStation
+        user={user}
+        coins={coins}
+        avatar={avatar}
+        onUpdateAvatar={(newAvatar, cost) => {
+          setAvatar(newAvatar);
+          if (cost) setCoins(c => c - cost);
+        }}
+        onBack={() => setCurrentPage(null)}
+      />;
     }
 
     // Game routing
@@ -100,7 +180,14 @@ export default function App() {
       case 'learning':
         return <LearningMode onBack={() => setCurrentGame(null)} />;
       default:
-        return <GameMenu onSelectGame={setCurrentGame} setDifficulty={setDifficulty} streak={user.streak} />;
+        // Replaced GameMenu with GalaxyMap
+        return <GalaxyMap
+          unlockedPlanets={unlockedPlanets}
+          onSelectLevel={setCurrentGame}
+          user={user}
+          coins={coins}
+          onClaimReward={handleClaimReward}
+        />;
     }
   };
 
@@ -109,6 +196,7 @@ export default function App() {
       <Navbar
         username={user.username}
         streak={user.streak}
+        coins={coins}
         onNavigate={handleNavNavigate}
         currentPage={currentPage}
         onLogout={handleLogout}

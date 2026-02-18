@@ -1,6 +1,8 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
 import './PatternGame.css';
 import CelebrationOverlay from './CelebrationOverlay';
+import ScoreOverlay from './ScoreOverlay';
 import { useSound } from './useSound';
 
 const SHAPES = ['🔴', '🔵', '🟢', '🟡', '🔺', '⬛', '🟣', '🟠'];
@@ -18,6 +20,7 @@ const PatternGame = ({ difficulty, onBack, onScoreSave }) => {
     const [wrongBtn, setWrongBtn] = useState(null);
     const [correctBtn, setCorrectBtn] = useState(null);
     const [showCelebration, setShowCelebration] = useState(false);
+    const [showScore, setShowScore] = useState(false);
     const [soundOn, setSoundOn] = useState(true);
     const { playCorrect, playWrong, speak, isMilestone } = useSound(soundOn);
 
@@ -98,9 +101,19 @@ const PatternGame = ({ difficulty, onBack, onScoreSave }) => {
             {showCelebration && (
                 <CelebrationOverlay score={score} onDone={() => { setShowCelebration(false); generatePattern(); }} />
             )}
+            {showScore && (
+                <ScoreOverlay
+                    score={score}
+                    onRestart={() => { setShowScore(false); generatePattern(); }}
+                    onHome={onBack}
+                />
+            )}
 
             <div className="game-topbar">
-                <button className="back-btn" onClick={onBack}>⬅ Back</button>
+                <div className="game-controls-left">
+                    <button className="back-btn" onClick={onBack}>⬅ Back</button>
+                    <button className="end-game-btn" onClick={() => setShowScore(true)}>❌ End Game</button>
+                </div>
                 <div className="score-board">⭐ {score}</div>
                 <button className="sound-toggle" onClick={() => setSoundOn(s => !s)}>{soundOn ? '🔊' : '🔇'}</button>
             </div>

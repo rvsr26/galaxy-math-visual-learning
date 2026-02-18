@@ -10,7 +10,7 @@
     position: sticky;
     top: 0;
     z-index: 200;
-    font-family: 'Segoe UI', sans-serif;
+    font-family: var(--font);
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
     transition: background 0.4s, border-color 0.4s;
 }

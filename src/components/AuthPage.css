@@ -1,24 +1,23 @@
 .auth-overlay {
-    position: fixed;
-    inset: 0;
-    background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+    background: transparent;
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 9999;
-    font-family: 'Segoe UI', sans-serif;
+    min-height: 100vh;
+    font-family: var(--font);
+    padding: 20px;
 }
 
 .auth-card {
-    background: rgba(255, 255, 255, 0.07);
+    background: var(--glass-bg);
     backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: 24px;
+    border: var(--glass-border);
+    border-radius: var(--radius-lg);
     padding: 40px 36px;
     width: 100%;
     max-width: 400px;
     text-align: center;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    box-shadow: var(--glass-shadow);
     animation: slideUp 0.5s ease;
 }
 
@@ -53,18 +52,18 @@
 }
 
 .auth-title {
-    color: #fff;
+    color: var(--text);
     font-size: 28px;
     font-weight: 800;
     margin: 0 0 4px;
-    background: linear-gradient(90deg, #a78bfa, #60a5fa);
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
 }
 
 .auth-subtitle {
-    color: rgba(255, 255, 255, 0.6);
+    color: var(--text-muted);
     font-size: 14px;
     margin: 0 0 24px;
 }
@@ -72,7 +71,7 @@
 .auth-tabs {
     display: flex;
     background: rgba(255, 255, 255, 0.08);
-    border-radius: 12px;
+    border-radius: var(--radius-sm);
     padding: 4px;
     margin-bottom: 24px;
 }
@@ -82,18 +81,19 @@
     padding: 10px;
     border: none;
     background: transparent;
-    color: rgba(255, 255, 255, 0.6);
-    border-radius: 10px;
+    color: var(--text-muted);
+    border-radius: var(--radius-sm);
     cursor: pointer;
     font-size: 14px;
     font-weight: 600;
     transition: all 0.3s;
+    font-family: var(--font);
 }
 
 .auth-tab.active {
-    background: linear-gradient(135deg, #a78bfa, #60a5fa);
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
     color: #fff;
-    box-shadow: 0 4px 15px rgba(167, 139, 250, 0.4);
+    box-shadow: 0 4px 15px var(--primary-glow);
 }
 
 .auth-form {
@@ -108,7 +108,7 @@
 
 .auth-field label {
     display: block;
-    color: rgba(255, 255, 255, 0.7);
+    color: var(--text-muted);
     font-size: 13px;
     font-weight: 600;
     margin-bottom: 6px;
@@ -117,50 +117,52 @@
 .auth-field input {
     width: 100%;
     padding: 12px 16px;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 12px;
-    color: #fff;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-sm);
+    color: var(--text);
     font-size: 15px;
     outline: none;
     transition: border 0.3s;
     box-sizing: border-box;
+    font-family: var(--font);
 }
 
 .auth-field input:focus {
-    border-color: #a78bfa;
-    background: rgba(167, 139, 250, 0.1);
+    border-color: var(--primary);
+    background: rgba(255, 255, 255, 0.1);
 }
 
 .auth-field input::placeholder {
-    color: rgba(255, 255, 255, 0.35);
+    color: rgba(255, 255, 255, 0.3);
 }
 
 .auth-error {
-    background: rgba(239, 68, 68, 0.2);
-    border: 1px solid rgba(239, 68, 68, 0.4);
-    color: #fca5a5;
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: var(--danger);
     padding: 10px 14px;
-    border-radius: 10px;
+    border-radius: var(--radius-sm);
     font-size: 13px;
 }
 
 .auth-submit {
     padding: 14px;
-    background: linear-gradient(135deg, #a78bfa, #60a5fa);
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
     border: none;
-    border-radius: 14px;
+    border-radius: var(--radius-sm);
     color: #fff;
     font-size: 16px;
     font-weight: 700;
     cursor: pointer;
     transition: all 0.3s;
-    box-shadow: 0 6px 20px rgba(167, 139, 250, 0.4);
+    box-shadow: 0 6px 20px var(--primary-glow);
+    font-family: var(--font);
 }
 
 .auth-submit:hover:not(:disabled) {
     transform: translateY(-2px);
-    box-shadow: 0 10px 30px rgba(167, 139, 250, 0.5);
+    box-shadow: 0 10px 30px var(--primary-glow);
 }
 
 .auth-submit:disabled {

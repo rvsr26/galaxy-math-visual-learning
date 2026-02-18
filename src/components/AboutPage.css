@@ -1,10 +1,10 @@
 /* ── Container ─────────────────────────────────────────── */
 .about-container {
     min-height: 100vh;
-    background: var(--body-bg, linear-gradient(135deg, #0f0c29, #302b63, #24243e));
+    background: var(--body-bg);
     padding: 28px 24px 60px;
-    font-family: 'Segoe UI', sans-serif;
-    color: var(--text, #f1f5f9);
+    font-family: var(--font);
+    color: var(--text);
     transition: background 0.4s, color 0.4s;
 }
 
@@ -18,37 +18,39 @@
 
 /* ── Back Button ───────────────────────────────────────── */
 .about-back-btn {
-    background: var(--btn-bg);
-    border: 1px solid var(--btn-border);
+    background: var(--glass-bg);
+    border: var(--glass-border);
     color: var(--text);
     padding: 10px 22px;
-    border-radius: 12px;
+    border-radius: var(--radius-sm);
     cursor: pointer;
     font-size: 14px;
     font-weight: 600;
     transition: background 0.25s;
     display: inline-block;
+    font-family: var(--font);
 }
 
 .about-back-btn:hover {
-    background: var(--btn-hover);
+    background: rgba(255, 255, 255, 0.15);
 }
 
 /* ── Theme Toggle Button ───────────────────────────────── */
 .about-theme-btn {
-    background: var(--btn-bg);
-    border: 1px solid var(--btn-border);
+    background: var(--glass-bg);
+    border: var(--glass-border);
     color: var(--text);
     padding: 10px 18px;
-    border-radius: 12px;
+    border-radius: var(--radius-sm);
     cursor: pointer;
     font-size: 13px;
     font-weight: 600;
     transition: background 0.25s, transform 0.2s;
+    font-family: var(--font);
 }
 
 .about-theme-btn:hover {
-    background: var(--btn-hover);
+    background: rgba(255, 255, 255, 0.15);
     transform: scale(1.04);
 }
 
@@ -56,19 +58,20 @@
 .about-hero {
     text-align: center;
     padding: 48px 24px 40px;
-    background: var(--card-bg);
-    border: 1px solid var(--card-border);
-    border-radius: 24px;
+    background: var(--glass-bg);
+    border: var(--glass-border);
+    border-radius: var(--radius-lg);
     max-width: 860px;
     margin: 0 auto 40px;
     transition: background 0.4s;
+    box-shadow: var(--glass-shadow);
 }
 
 .about-hero-badge {
     display: inline-block;
-    background: linear-gradient(90deg, #a78bfa33, #60a5fa33);
+    background: rgba(167, 139, 250, 0.2);
     border: 1px solid rgba(167, 139, 250, 0.4);
-    color: #a78bfa;
+    color: var(--primary);
     font-size: 12px;
     font-weight: 700;
     letter-spacing: 1.2px;
@@ -82,7 +85,7 @@
     font-size: 34px;
     font-weight: 800;
     margin: 0 0 14px;
-    background: linear-gradient(90deg, #a78bfa, #60a5fa);
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -108,9 +111,9 @@
 
 /* ── Profile Card ──────────────────────────────────────── */
 .about-profile-card {
-    background: var(--card-bg);
-    border: 1px solid var(--card-border);
-    border-radius: 24px;
+    background: var(--glass-bg);
+    border: var(--glass-border);
+    border-radius: var(--radius-lg);
     padding: 28px 24px;
     text-align: center;
     display: flex;
@@ -118,6 +121,7 @@
     align-items: center;
     gap: 20px;
     transition: background 0.4s;
+    box-shadow: var(--glass-shadow);
 }
 
 /* Avatar */
@@ -125,11 +129,11 @@
     width: 120px;
     height: 120px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #a78bfa, #60a5fa);
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 0 0 4px rgba(167, 139, 250, 0.25), 0 8px 24px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 0 0 4px var(--primary-glow), 0 8px 24px rgba(0, 0, 0, 0.3);
     flex-shrink: 0;
     overflow: hidden;
 }
@@ -151,7 +155,7 @@
 
 .about-profile-roll {
     font-size: 13px;
-    color: var(--text-dim);
+    color: var(--text-muted);
     margin: 0;
     font-family: monospace;
     letter-spacing: 0.5px;
@@ -167,7 +171,7 @@
 .about-tag {
     background: rgba(96, 165, 250, 0.15);
     border: 1px solid rgba(96, 165, 250, 0.3);
-    color: #60a5fa;
+    color: var(--secondary);
     font-size: 11px;
     font-weight: 600;
     padding: 4px 12px;
@@ -183,12 +187,12 @@
 }
 
 .about-link-btn {
-    background: var(--btn-bg);
-    border: 1px solid var(--btn-border);
+    background: var(--glass-bg);
+    border: var(--glass-border);
     color: var(--text);
     text-decoration: none;
     padding: 8px 16px;
-    border-radius: 10px;
+    border-radius: var(--radius-sm);
     font-size: 13px;
     font-weight: 600;
     transition: background 0.25s, transform 0.2s;
@@ -207,14 +211,15 @@
 }
 
 .about-info-card {
-    background: var(--card-bg);
-    border: 1px solid var(--card-border);
-    border-radius: 20px;
+    background: var(--glass-bg);
+    border: var(--glass-border);
+    border-radius: var(--radius-md);
     padding: 24px;
     display: flex;
     gap: 18px;
     align-items: flex-start;
     transition: transform 0.25s, box-shadow 0.25s, background 0.4s;
+    box-shadow: var(--glass-shadow);
 }
 
 .about-info-card:hover {
@@ -233,7 +238,7 @@
     font-size: 16px;
     font-weight: 700;
     color: var(--accent);
-    border-bottom: 1px solid var(--card-border);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     padding-bottom: 8px;
 }
 
@@ -246,7 +251,8 @@
 }
 
 .label {
-    color: var(--text-dim);
+    color: var(--text-muted);
+    opacity: 0.7;
     font-size: 12px;
     font-weight: 600;
     text-transform: uppercase;
@@ -275,8 +281,8 @@
     margin: 40px auto 0;
     text-align: center;
     font-size: 12px;
-    color: var(--footer-text);
-    border-top: 1px solid var(--footer-border);
+    color: var(--text-muted);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
     padding-top: 20px;
     letter-spacing: 0.3px;
 }

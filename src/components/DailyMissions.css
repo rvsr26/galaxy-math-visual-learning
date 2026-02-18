@@ -1,0 +1,106 @@
+.missions-widget {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 1000;
+    font-family: var(--font);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 12px;
+}
+
+.missions-toggle {
+    background: linear-gradient(135deg, var(--accent), #ff5e62);
+    color: #fff;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 30px;
+    font-size: 1.1rem;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(255, 94, 98, 0.4);
+    transition: transform 0.2s, box-shadow 0.2s;
+    font-family: var(--font);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.missions-toggle:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(255, 94, 98, 0.5);
+}
+
+.missions-list {
+    background: var(--glass-bg);
+    backdrop-filter: blur(16px);
+    border: var(--glass-border);
+    border-radius: var(--radius-md);
+    padding: 20px;
+    margin-bottom: 8px;
+    box-shadow: var(--glass-shadow);
+    width: 280px;
+    animation: slideUp 0.3s ease;
+    color: var(--text);
+}
+
+.missions-list h3 {
+    margin: 0 0 16px;
+    font-size: 1.2rem;
+    color: var(--accent);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 8px;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.mission-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    font-size: 0.95rem;
+    color: var(--text);
+    background: rgba(255, 255, 255, 0.05);
+    padding: 10px 12px;
+    border-radius: var(--radius-sm);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.mission-item button {
+    background: linear-gradient(135deg, var(--success), #10b981);
+    color: white;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 0.85rem;
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+    transition: all 0.2s;
+    font-family: var(--font);
+    white-space: nowrap;
+}
+
+.mission-item button:hover:not(:disabled) {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+}
+
+.mission-item button:disabled {
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.4);
+    cursor: not-allowed;
+    box-shadow: none;
+}

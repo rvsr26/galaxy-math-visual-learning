@@ -8,6 +8,12 @@
     gap: 20px;
 }
 
+.learning-title {
+    margin: 0;
+    font-size: 1.2rem;
+    color: var(--text);
+}
+
 .main-card {
     width: 90%;
     max-width: 560px;

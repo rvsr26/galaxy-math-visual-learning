@@ -64,5 +64,16 @@ export function useSound(enabled = true) {
 
     const isMilestone = useCallback((score) => MILESTONES.includes(score), []);
 
-    return { playCorrect, playWrong, playClick, playCount, speak, isMilestone };
+    const playUnlock = useCallback(() => {
+        playTone(600, 0.1, 'sine');
+        setTimeout(() => playTone(800, 0.1, 'sine'), 100);
+        setTimeout(() => playTone(1000, 0.2, 'sine'), 200);
+    }, [playTone]);
+
+    const playBuy = useCallback(() => {
+        playTone(1200, 0.1, 'square');
+        setTimeout(() => playTone(600, 0.2, 'sine'), 100);
+    }, [playTone]);
+
+    return { playCorrect, playWrong, playClick, playCount, speak, isMilestone, playUnlock, playBuy };
 }

@@ -12,6 +12,13 @@ const userSchema = new mongoose.Schema({
     passwordHash: { type: String, required: true },
     scores: [scoreSchema],
     streak: { type: Number, default: 0 },
+    coins: { type: Number, default: 0 },
+    avatar: {
+        helmet: { type: String, default: 'default' },
+        suit: { type: String, default: 'default' },
+        pet: { type: String, default: 'none' }
+    },
+    unlockedPlanets: { type: [String], default: ['learning'] },
     lastPlayedDate: { type: String, default: null }, // YYYY-MM-DD
     createdAt: { type: Date, default: Date.now }
 });

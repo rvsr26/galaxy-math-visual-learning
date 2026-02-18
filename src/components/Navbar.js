@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import './Navbar.css';
 
-const Navbar = ({ username, streak, onNavigate, currentPage, onLogout, dark, onToggleTheme }) => {
+const Navbar = ({ username, streak, coins, onNavigate, currentPage, onLogout, dark, onToggleTheme }) => {
     const [menuOpen, setMenuOpen] = useState(false);
 
     const navLinks = [
         { id: null, label: '🏠 Home' },
         { id: 'leaderboard', label: '🏆 Leaderboard' },
+        { id: 'avatar', label: '👨‍🚀 Avatar' },
         { id: 'about', label: 'ℹ️ About' },
     ];
 
@@ -35,6 +36,9 @@ const Navbar = ({ username, streak, onNavigate, currentPage, onLogout, dark, onT
             </div>
 
             <div className="navbar-user">
+                <div className="streak-pill" title="Star Coins">
+                    ⭐ {coins}
+                </div>
                 <div className="streak-pill" title="Day Streak">
                     🔥 {streak}
                 </div>

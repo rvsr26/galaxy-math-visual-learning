@@ -1,5 +1,7 @@
+
 import React, { useState, useCallback } from 'react';
 import './LearningMode.css';
+import ScoreOverlay from './ScoreOverlay';
 import { useSound } from './useSound';
 
 const FUN_FACTS = {
@@ -32,6 +34,7 @@ const LearningMode = ({ onBack }) => {
     const [activeNum, setActiveNum] = useState(1);
     const [soundOn, setSoundOn] = useState(true);
     const [itemSpoken, setItemSpoken] = useState(null);
+    const [showScore, setShowScore] = useState(false);
     const { speak } = useSound(soundOn);
 
     const current = LEARNING_DATA[activeNum - 1];
@@ -54,9 +57,19 @@ const LearningMode = ({ onBack }) => {
 
     return (
         <div className="game-container">
+            {showScore && (
+                <ScoreOverlay
+                    score="Learning"
+                    onRestart={() => { setShowScore(false); setActiveNum(1); }}
+                    onHome={onBack}
+                />
+            )}
             <div className="game-topbar">
-                <button className="back-btn" onClick={onBack}>⬅ Back</button>
-                <h2 style={{ margin: 0, fontSize: '1.2rem' }}>Learn Numbers! 📚</h2>
+                <div className="game-controls-left">
+                    <button className="back-btn" onClick={onBack}>⬅ Back</button>
+                    <button className="end-game-btn" onClick={() => setShowScore(true)}>❌ End Session</button>
+                </div>
+                <h2 className="learning-title">Learn Numbers! 📚</h2>
                 <button className="sound-toggle" onClick={() => setSoundOn(s => !s)}>{soundOn ? '🔊' : '🔇'}</button>
             </div>
 

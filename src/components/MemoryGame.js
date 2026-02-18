@@ -1,6 +1,8 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
 import './MemoryGame.css';
 import CelebrationOverlay from './CelebrationOverlay';
+import ScoreOverlay from './ScoreOverlay';
 import { useSound } from './useSound';
 
 const ITEMS = ['🪐', '🌍', '🌙', '☀️', '🚀', '🛸', '🌟', '💫', '🌌', '⭐'];
@@ -12,6 +14,7 @@ const MemoryGame = ({ difficulty, onBack, onScoreSave }) => {
     const [score, setScore] = useState(0);
     const [wrongPair, setWrongPair] = useState([]);
     const [showCelebration, setShowCelebration] = useState(false);
+    const [showScore, setShowScore] = useState(false);
     const [peeking, setPeeking] = useState(false);
     const [soundOn, setSoundOn] = useState(true);
     const { playCorrect, playWrong, speak, isMilestone } = useSound(soundOn);
@@ -84,9 +87,19 @@ const MemoryGame = ({ difficulty, onBack, onScoreSave }) => {
                     startNewGame(true, totalPairs);
                 }} />
             )}
+            {showScore && (
+                <ScoreOverlay
+                    score={score}
+                    onRestart={() => { setShowScore(false); startNewGame(); }}
+                    onHome={onBack}
+                />
+            )}
 
             <div className="game-topbar">
-                <button className="back-btn" onClick={onBack}>⬅ Back</button>
+                <div className="game-controls-left">
+                    <button className="back-btn" onClick={onBack}>⬅ Back</button>
+                    <button className="end-game-btn" onClick={() => setShowScore(true)}>❌ End Game</button>
+                </div>
                 <div className="score-board">⭐ {score}</div>
                 <button className="sound-toggle" onClick={() => setSoundOn(s => !s)}>{soundOn ? '🔊' : '🔇'}</button>
             </div>

@@ -3,11 +3,13 @@ import DailyMissions from './DailyMissions';
 import './GalaxyMap.css';
 
 const PLANETS = [
-    { id: 'learning', name: 'Learning', type: 'learning', x: 20, y: 85, color: '#ffffff', limit: 0, icon: '🌑' },
-    { id: 'counting', name: 'Counting', type: 'counting', x: 50, y: 65, color: '#ffffff', limit: 1, icon: '🌟' },
-    { id: 'pattern', name: 'Patterns', type: 'pattern', x: 80, y: 45, color: '#ffffff', limit: 2, icon: '🌍' },
-    { id: 'math', name: 'Math', type: 'math', x: 50, y: 25, color: '#ffffff', limit: 3, icon: '🔴' },
-    { id: 'memory', name: 'Memory', type: 'memory', x: 20, y: 10, color: '#ffffff', limit: 4, icon: '🪐' },
+    { id: 'learning', name: 'Learning', type: 'learning', x: 20, y: 90, color: '#ffffff', limit: 0, icon: '🌑' },
+    { id: 'counting', name: 'Counting', type: 'counting', x: 50, y: 77, color: '#ffffff', limit: 1, icon: '⭐' },
+    { id: 'pattern', name: 'Patterns', type: 'pattern', x: 80, y: 64, color: '#ffffff', limit: 2, icon: '🌍' },
+    { id: 'addition', name: 'Addition', type: 'addition', x: 50, y: 51, color: '#FFD700', limit: 3, icon: '➕' },
+    { id: 'subtraction', name: 'Subtraction', type: 'subtraction', x: 20, y: 38, color: '#FF6347', limit: 4, icon: '➖' },
+    { id: 'multiplication', name: 'Multiplication', type: 'multiplication', x: 50, y: 25, color: '#4682B4', limit: 5, icon: '✖️' },
+    { id: 'memory', name: 'Memory', type: 'memory', x: 80, y: 12, color: '#ffffff', limit: 6, icon: '🪐' },
 ];
 
 const GalaxyMap = ({ unlockedPlanets, onSelectLevel, user, coins, onClaimReward }) => {
@@ -21,7 +23,7 @@ const GalaxyMap = ({ unlockedPlanets, onSelectLevel, user, coins, onClaimReward 
             <svg className="galaxy-path-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
                 {/* Dotted path connecting planets */}
                 <path
-                    d="M 20 85 L 50 65 L 80 45 L 50 25 L 20 10"
+                    d="M 20 90 L 50 77 L 80 64 L 50 51 L 20 38 L 50 25 L 80 12"
                     fill="none"
                     stroke="rgba(255,255,255,0.4)"
                     strokeWidth="3"
@@ -41,7 +43,7 @@ const GalaxyMap = ({ unlockedPlanets, onSelectLevel, user, coins, onClaimReward 
                         style={{ left: `${planet.x}%`, top: `${planet.y}%` }}
                         onClick={() => isUnlocked && onSelectLevel(planet.type)}
                     >
-                        <div className="planet-icon" style={{ backgroundColor: isUnlocked ? planet.color : '#333' }}>
+                        <div className="planet-icon" style={{ backgroundColor: isUnlocked ? (planet.color === '#ffffff' ? '#ffffff' : planet.color) : '#333' }}>
                             {isUnlocked ? planet.icon : '🔒'}
                         </div>
                         <span className="planet-label">{planet.name}</span>

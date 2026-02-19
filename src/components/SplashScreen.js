@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './SplashScreen.css';
 
 const FEATURES = [
@@ -17,13 +18,57 @@ const STATS = [
 ];
 
 const SplashScreen = ({ onComplete }) => {
+    const [step, setStep] = useState('selection'); // 'selection' | 'splash'
     const [visible, setVisible] = useState(false);
+    const navigate = useNavigate();
 
     useEffect(() => {
         // Trigger entrance animations
         const t = setTimeout(() => setVisible(true), 100);
         return () => clearTimeout(t);
-    }, []);
+    }, [step]);
+
+    const handleLabSelection = (lab) => {
+        if (lab === 'lab1') {
+            navigate('/emergency');
+        } else {
+            setStep('splash');
+            setVisible(false); // Reset visibility for fade-in effect
+        }
+    };
+
+    if (step === 'selection') {
+        return (
+            <div className="landing-page selection-mode">
+                {/* Floating background orbs */}
+                <div className="orb orb-1" />
+                <div className="orb orb-2" />
+                <div className="orb orb-3" />
+
+                <div className={`selection-container ${visible ? 'visible' : ''}`}>
+                    <h1 className="selection-title">Choose Your Adventure</h1>
+                    <div className="selection-grid">
+                        <div className="selection-card" onClick={() => handleLabSelection('lab1')}>
+                            <div className="card-icon">🚨</div>
+                            <h2>Lab 1</h2>
+                            <p>Emergency Awareness</p>
+                            <div className="card-arrow">➜</div>
+                        </div>
+                        <div className="selection-card" onClick={() => handleLabSelection('lab2')}>
+                            <div className="card-icon">🚀</div>
+                            <h2>Lab 2</h2>
+                            <p>Galaxy Math</p>
+                            <div className="card-arrow">➜</div>
+                        </div>
+                    </div>
+                </div>
+
+                <footer className="landing-footer">
+                    <p>Select a module to continue</p>
+                </footer>
+            </div>
+        );
+    }
 
     return (
         <div className="landing-page">

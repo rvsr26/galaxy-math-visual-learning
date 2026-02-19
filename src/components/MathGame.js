@@ -4,6 +4,7 @@ import './MathGame.css';
 import CelebrationOverlay from './CelebrationOverlay';
 import ScoreOverlay from './ScoreOverlay';
 import { useSound } from './useSound';
+import html2canvas from 'html2canvas';
 
 const ENCOURAGEMENTS = [
     'Math Star! ⭐', 'Brilliant! 💫', 'You got it! 🎉',
@@ -12,12 +13,14 @@ const ENCOURAGEMENTS = [
 ];
 
 const OPERATORS = {
-    easy: ['+'],
-    medium: ['+', '-'],
-    hard: ['+', '-', '×'],
+    easy: ['+', '-', '×'],
+    medium: ['+', '-', '×'],
+    hard: ['+', '-', '×', '÷'],
 };
 
-const MathGame = ({ difficulty, onBack, onScoreSave }) => {
+const MathGame = ({ difficulty, onBack, onScoreSave, gameType }) => {
+    // Refs for screen capture
+    const gameRef = React.useRef(null);
     const [num1, setNum1] = useState(0);
     const [num2, setNum2] = useState(0);
     const [operator, setOperator] = useState('+');
@@ -32,12 +35,39 @@ const MathGame = ({ difficulty, onBack, onScoreSave }) => {
     const [soundOn, setSoundOn] = useState(true);
     const { playCorrect, playWrong, speak, isMilestone } = useSound(soundOn);
 
-    useEffect(() => { generateProblem(); }, [difficulty]);
+    useEffect(() => { generateProblem(); }, [difficulty, gameType]);
+
+    // Keyboard support
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            if (e.key >= '1' && e.key <= '3') {
+                const index = parseInt(e.key) - 1;
+                if (options[index] !== undefined) {
+                    checkAnswer(options[index]);
+                }
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [options]);
+
+    const handleScreenCapture = async () => {
+        if (gameRef.current) {
+            const canvas = await html2canvas(gameRef.current);
+            const image = canvas.toDataURL("image/png");
+            const link = document.createElement('a');
+            link.href = image;
+            link.download = 'math-game-screenshot.png';
+            link.click();
+            speak('Screen captured!');
+        }
+    };
 
     const getAnswer = (n1, n2, op) => {
         if (op === '+') return n1 + n2;
         if (op === '-') return n1 - n2;
         if (op === '×') return n1 * n2;
+        if (op === '÷') return n1 / n2;
         return n1 + n2;
     };
 
@@ -46,23 +76,45 @@ const MathGame = ({ difficulty, onBack, onScoreSave }) => {
         if (difficulty === 'medium') max = 10;
         if (difficulty === 'hard') max = 12;
 
-        const ops = OPERATORS[difficulty] || ['+'];
-        const op = ops[Math.floor(Math.random() * ops.length)];
+        let op = '+';
+        if (gameType === 'addition') op = '+';
+        else if (gameType === 'subtraction') op = '-';
+        else if (gameType === 'multiplication') op = '×';
+        else {
+            // Fallback to mixed if no gameType specific
+            const ops = OPERATORS[difficulty] || ['+'];
+            op = ops[Math.floor(Math.random() * ops.length)];
+        }
 
         let n1 = Math.floor(Math.random() * max) + 1;
         let n2 = Math.floor(Math.random() * max) + 1;
 
         // For subtraction, ensure non-negative result
         if (op === '-' && n2 > n1) [n1, n2] = [n2, n1];
-        // For multiplication, keep numbers small
-        if (op === '×') { n1 = Math.floor(Math.random() * 5) + 1; n2 = Math.floor(Math.random() * 5) + 1; }
+
+        // For multiplication, keep numbers small to avoid huge results
+        if (op === '×') {
+            const mulMax = difficulty === 'hard' ? 9 : difficulty === 'medium' ? 6 : 4;
+            n1 = Math.floor(Math.random() * mulMax) + 1;
+            n2 = Math.floor(Math.random() * mulMax) + 1;
+        }
+
+        // For division (simple)
+        if (op === '÷') {
+            n2 = Math.floor(Math.random() * 4) + 1;
+            n1 = n2 * (Math.floor(Math.random() * 5) + 1);
+        }
 
         const ans = getAnswer(n1, n2, op);
         setNum1(n1); setNum2(n2); setOperator(op);
 
         let opts = new Set([ans]);
         while (opts.size < 3) {
-            let r = Math.max(0, ans + (Math.floor(Math.random() * 7) - 3));
+            let variance = Math.max(1, Math.floor(ans * 0.5));
+            // adjust range variance based on answer size
+            if (ans < 5) variance = 3;
+
+            let r = Math.max(0, ans + (Math.floor(Math.random() * (variance * 2 + 1)) - variance));
             if (r !== ans) opts.add(r);
         }
         setOptions(Array.from(opts).sort((a, b) => a - b));
@@ -74,7 +126,7 @@ const MathGame = ({ difficulty, onBack, onScoreSave }) => {
         // Speak the problem
         const opWord = op === '+' ? 'plus' : op === '-' ? 'minus' : 'times';
         setTimeout(() => speak(`${n1} ${opWord} ${n2} equals?`), 300);
-    }, [difficulty, speak]);
+    }, [difficulty, gameType, speak]);
 
     const checkAnswer = (selected) => {
         const ans = getAnswer(num1, num2, operator);
@@ -104,8 +156,15 @@ const MathGame = ({ difficulty, onBack, onScoreSave }) => {
     const emoji1 = operator === '×' ? '🌟' : '🪐';
     const emoji2 = operator === '×' ? '🌟' : '⭐';
 
+    const getTitle = () => {
+        if (gameType === 'addition') return 'Add the Numbers! ➕';
+        if (gameType === 'subtraction') return 'Subtract the Numbers! ➖';
+        if (gameType === 'multiplication') return 'Multiply the Numbers! ✖️';
+        return 'Math Fun! 🔢';
+    };
+
     return (
-        <div className="game-container">
+        <div className="game-container" ref={gameRef}>
             {showCelebration && (
                 <CelebrationOverlay score={score} onDone={() => { setShowCelebration(false); generateProblem(); }} />
             )}
@@ -121,12 +180,13 @@ const MathGame = ({ difficulty, onBack, onScoreSave }) => {
                 <div className="game-controls-left">
                     <button className="back-btn" onClick={onBack}>⬅ Back</button>
                     <button className="end-game-btn" onClick={() => setShowScore(true)}>❌ End Game</button>
+                    <button className="capture-btn" onClick={handleScreenCapture}>📸 Capture</button>
                 </div>
                 <div className="score-board">⭐ {score}</div>
                 <button className="sound-toggle" onClick={() => setSoundOn(s => !s)}>{soundOn ? '🔊' : '🔇'}</button>
             </div>
 
-            <h2>Add the Numbers! ➕</h2>
+            <h2>{getTitle()}</h2>
 
             <div className="math-problem">
                 <div className="number-group">
@@ -144,10 +204,22 @@ const MathGame = ({ difficulty, onBack, onScoreSave }) => {
 
             {showHint && (
                 <div className="math-hint">
-                    💡 Count all the emojis together!
+                    💡
+                    {gameType === 'multiplication' ? (
+                        <span> {num1} groups of {num2}!</span>
+                    ) : (
+                        <span> Count the emojis!</span>
+                    )}
                     <div className="hint-emojis">
-                        {emoji1.repeat(Math.min(num1, 12))}{' '}
-                        {operator === '-' ? '' : emoji2.repeat(Math.min(num2, 12))}
+                        {gameType === 'multiplication' ? (
+                            // Visualizing multiplication groups could be complex, keeping simple for now
+                            emoji1.repeat(Math.min(num1 * num2, 15))
+                        ) : (
+                            <>
+                                {emoji1.repeat(Math.min(num1, 12))}{' '}
+                                {operator === '-' ? '' : emoji2.repeat(Math.min(num2, 12))}
+                            </>
+                        )}
                     </div>
                 </div>
             )}

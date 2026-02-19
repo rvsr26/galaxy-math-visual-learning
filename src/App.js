@@ -1,5 +1,7 @@
 
 import React, { useState, useEffect } from "react";
+import { Routes, Route, useNavigate } from "react-router-dom";
+import EmergencyApp from "./components/emergency/EmergencyApp";
 import "./App.css";
 import GameMenu from "./components/GameMenu";
 import GalaxyMap from "./components/GalaxyMap";
@@ -18,7 +20,22 @@ import { useSound } from "./components/useSound";
 
 const API = 'http://localhost:5000/api/scores';
 
+
+
 export default function App() {
+  return (
+    <Routes>
+      <Route path="/*" element={<GameContainer />} />
+      <Route path="/emergency/*" element={<EmergencyApp />} />
+    </Routes>
+  );
+}
+
+
+
+const ALL_PLANETS = ['learning', 'counting', 'pattern', 'addition', 'subtraction', 'multiplication', 'memory'];
+
+function GameContainer() {
   const [currentPage, setCurrentPage] = useState(null); // null = home/game menu
   const [currentGame, setCurrentGame] = useState(null);
   const [difficulty, setDifficulty] = useState('easy');
@@ -27,8 +44,9 @@ export default function App() {
   const [dark, setDark] = useState(true);
   const [coins, setCoins] = useState(0);
   const [avatar, setAvatar] = useState({ helmet: 'default', suit: 'default', pet: 'none' });
-  const [unlockedPlanets, setUnlockedPlanets] = useState(['learning']);
+  const [unlockedPlanets, setUnlockedPlanets] = useState(ALL_PLANETS);
   const { playUnlock } = useSound();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -47,7 +65,7 @@ export default function App() {
         setUser({ username: data.username, streak: data.streak });
         setCoins(data.coins || 0);
         setAvatar(data.avatar || { helmet: 'default', suit: 'default', pet: 'none' });
-        setUnlockedPlanets(data.unlockedPlanets || ['learning']);
+        setUnlockedPlanets(ALL_PLANETS); // Always unlock all
       }
     } catch (err) {
       console.error("Failed to fetch profile", err);
@@ -94,7 +112,7 @@ export default function App() {
       }
 
       // Unlock next planet logic
-      const planets = ['learning', 'counting', 'pattern', 'math', 'memory'];
+      const planets = ['learning', 'counting', 'pattern', 'addition', 'subtraction', 'multiplication', 'memory'];
       const currentIdx = planets.indexOf(game);
       if (currentIdx !== -1 && currentIdx < planets.length - 1) {
         const nextPlanet = planets[currentIdx + 1];
@@ -130,6 +148,10 @@ export default function App() {
 
   // Navigate via navbar — 'leaderboard' | 'about' | 'avatar' | null (home)
   const handleNavNavigate = (pageId) => {
+    if (pageId === 'emergency') {
+      navigate('/emergency');
+      return;
+    }
     setCurrentPage(pageId);
     setCurrentGame(null); // exit any active game
   };
@@ -171,8 +193,12 @@ export default function App() {
     switch (currentGame) {
       case 'counting':
         return <CountingGame difficulty={difficulty} onBack={() => setCurrentGame(null)} onScoreSave={(s) => handleScoreSave('counting', s)} />;
-      case 'math':
-        return <MathGame difficulty={difficulty} onBack={() => setCurrentGame(null)} onScoreSave={(s) => handleScoreSave('math', s)} />;
+      case 'addition':
+        return <MathGame difficulty={difficulty} gameType="addition" onBack={() => setCurrentGame(null)} onScoreSave={(s) => handleScoreSave('addition', s)} />;
+      case 'subtraction':
+        return <MathGame difficulty={difficulty} gameType="subtraction" onBack={() => setCurrentGame(null)} onScoreSave={(s) => handleScoreSave('subtraction', s)} />;
+      case 'multiplication':
+        return <MathGame difficulty={difficulty} gameType="multiplication" onBack={() => setCurrentGame(null)} onScoreSave={(s) => handleScoreSave('multiplication', s)} />;
       case 'pattern':
         return <PatternGame difficulty={difficulty} onBack={() => setCurrentGame(null)} onScoreSave={(s) => handleScoreSave('pattern', s)} />;
       case 'memory':

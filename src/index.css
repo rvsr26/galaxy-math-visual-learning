@@ -4,7 +4,24 @@
 
 @layer base {
   body {
-    font-family: 'Inter', sans-serif;
-    @apply antialiased text-gray-800 bg-gray-50;
+    @apply antialiased text-gray-100 bg-slate-950 font-sans selection:bg-cyan-500/30;
+  }
+}
+
+@layer components {
+  .btn-galaxy {
+    @apply px-6 py-3 rounded-2xl font-bold transition-all duration-300 transform hover:-translate-y-1 active:translate-y-0 bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-lg shadow-cyan-500/20 hover:shadow-cyan-500/40 border border-white/10;
+  }
+
+  .btn-galaxy-secondary {
+    @apply px-6 py-3 rounded-2xl font-bold transition-all duration-300 transform hover:-translate-y-1 active:translate-y-0 bg-gradient-to-r from-purple-500 to-indigo-600 text-white shadow-lg shadow-purple-500/20 hover:shadow-purple-500/40 border border-white/10;
+  }
+
+  .glass-panel {
+    @apply bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-3xl shadow-xl;
+  }
+
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-blue-500;
   }
 }

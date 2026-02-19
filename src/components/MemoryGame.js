@@ -1,151 +1,167 @@
-
-import React, { useState, useEffect, useCallback } from 'react';
-import './MemoryGame.css';
+import React, { useState, useEffect } from 'react';
 import CelebrationOverlay from './CelebrationOverlay';
 import ScoreOverlay from './ScoreOverlay';
 import { useSound } from './useSound';
 
-const ITEMS = ['🪐', '🌍', '🌙', '☀️', '🚀', '🛸', '🌟', '💫', '🌌', '⭐'];
+const CARDS = [
+    { id: 1, content: '🪐' }, { id: 2, content: '🪐' },
+    { id: 3, content: '🚀' }, { id: 4, content: '🚀' },
+    { id: 5, content: '⭐' }, { id: 6, content: '⭐' },
+    { id: 7, content: '🌍' }, { id: 8, content: '🌍' },
+    { id: 9, content: '👽' }, { id: 10, content: '👽' },
+    { id: 11, content: '🌙' }, { id: 12, content: '🌙' },
+];
 
 const MemoryGame = ({ difficulty, onBack, onScoreSave }) => {
     const [cards, setCards] = useState([]);
     const [flipped, setFlipped] = useState([]);
     const [matched, setMatched] = useState([]);
     const [score, setScore] = useState(0);
-    const [wrongPair, setWrongPair] = useState([]);
+    const [moves, setMoves] = useState(0);
     const [showCelebration, setShowCelebration] = useState(false);
     const [showScore, setShowScore] = useState(false);
-    const [peeking, setPeeking] = useState(false);
     const [soundOn, setSoundOn] = useState(true);
-    const { playCorrect, playWrong, speak, isMilestone } = useSound(soundOn);
+    const { playCorrect, playWrong, playFlip, speak, isMilestone } = useSound(soundOn);
 
-    useEffect(() => { startNewGame(); }, [difficulty]);
+    useEffect(() => {
+        initializeGame();
+    }, [difficulty]);
 
-    const startNewGame = useCallback((nextLevel = false, currentPairs = null) => {
-        let numPairs = difficulty === 'hard' ? 8 : difficulty === 'medium' ? 6 : 4;
-        if (nextLevel && currentPairs) numPairs = Math.min(currentPairs + 2, 10);
+    const initializeGame = () => {
+        let deck = [...CARDS];
+        if (difficulty === 'easy') deck = deck.slice(0, 6); // 3 pairs
+        if (difficulty === 'medium') deck = deck.slice(0, 8); // 4 pairs
 
-        const gameItems = ITEMS.slice(0, numPairs);
-        const deck = [...gameItems, ...gameItems]
-            .sort(() => Math.random() - 0.5)
-            .map((item, index) => ({ id: index, content: item, pairId: gameItems.indexOf(item) }));
-
+        // Shuffle
+        deck = deck.sort(() => Math.random() - 0.5);
         setCards(deck);
         setFlipped([]);
         setMatched([]);
-        setWrongPair([]);
-        if (!nextLevel) setScore(0);
+        setMoves(0);
+        setScore(0);
+        setShowCelebration(false);
+        setShowScore(false);
+    };
 
-        // Peek mode on hard — briefly show all cards
-        if (difficulty === 'hard') {
-            setPeeking(true);
-            speak('Watch carefully! Cards will hide in 2 seconds!');
-            setTimeout(() => setPeeking(false), 2000);
-        }
-    }, [difficulty, speak]);
+    const handleCardClick = (index) => {
+        if (flipped.length === 2 || flipped.includes(index) || matched.includes(index)) return;
 
-    const handleCardClick = (id) => {
-        if (flipped.length === 2 || flipped.includes(id) || matched.includes(id) || peeking) return;
-        const newFlipped = [...flipped, id];
+        playFlip();
+        const newFlipped = [...flipped, index];
         setFlipped(newFlipped);
 
         if (newFlipped.length === 2) {
-            const [a, b] = newFlipped;
-            if (cards[a].content === cards[b].content) {
-                const newMatched = [...matched, a, b];
-                setMatched(newMatched);
-                const newScore = score + 10;
-                setScore(newScore);
-                if (onScoreSave) onScoreSave(newScore);
-                playCorrect();
-                speak('Match!');
-                setFlipped([]);
-
-                if (newMatched.length === cards.length) {
-                    if (isMilestone(Math.floor(newScore / 10))) {
-                        setShowCelebration(true);
-                    } else {
-                        setTimeout(() => speak('You found all pairs! Amazing!'), 300);
-                    }
-                }
-            } else {
-                playWrong();
-                setWrongPair([a, b]);
-                setTimeout(() => { setFlipped([]); setWrongPair([]); }, 1000);
-            }
+            setMoves(m => m + 1);
+            checkForMatch(newFlipped);
         }
     };
 
-    const totalPairs = cards.length / 2;
-    const foundPairs = matched.length / 2;
+    const checkForMatch = (currentFlipped) => {
+        const [first, second] = currentFlipped;
+        if (cards[first].content === cards[second].content) {
+            setTimeout(() => {
+                setMatched(prev => [...prev, first, second]);
+                setFlipped([]);
+                playCorrect();
+                const newScore = score + 10;
+                setScore(newScore);
+                speak('Match!');
+
+                if (matched.length + 2 === cards.length) {
+                    handleWin(newScore);
+                }
+            }, 600);
+        } else {
+            setTimeout(() => {
+                setFlipped([]);
+                playWrong();
+            }, 1000);
+        }
+    };
+
+    const handleWin = (finalScore) => {
+        if (onScoreSave) onScoreSave(Math.ceil(finalScore / 10)); // Convert to simple score
+        setTimeout(() => setShowCelebration(true), 500);
+    };
 
     return (
-        <div className="game-container">
+        <div className="min-h-screen bg-slate-950 pt-20 px-4 flex flex-col items-center">
             {showCelebration && (
-                <CelebrationOverlay score={score} onDone={() => {
-                    setShowCelebration(false);
-                    startNewGame(true, totalPairs);
-                }} />
+                <CelebrationOverlay score={score} onDone={() => { setShowCelebration(false); initializeGame(); }} />
             )}
             {showScore && (
                 <ScoreOverlay
                     score={score}
-                    onRestart={() => { setShowScore(false); startNewGame(); }}
+                    onRestart={() => { setShowScore(false); initializeGame(); }}
                     onHome={onBack}
                 />
             )}
 
-            <div className="game-topbar">
-                <div className="game-controls-left">
-                    <button className="back-btn" onClick={onBack}>⬅ Back</button>
-                    <button className="end-game-btn" onClick={() => setShowScore(true)}>❌ End Game</button>
+            {/* Top Bar */}
+            <div className="w-full max-w-4xl flex items-center justify-between mb-8">
+                <div className="flex gap-3">
+                    <button
+                        onClick={onBack}
+                        className="px-4 py-2 bg-slate-800/50 hover:bg-slate-700 text-white rounded-xl font-bold border border-white/10 transition-colors"
+                    >
+                        ⬅ Back
+                    </button>
+                    <button
+                        onClick={() => setShowScore(true)}
+                        className="px-4 py-2 bg-red-500/20 hover:bg-red-500/40 text-red-300 rounded-xl font-bold border border-red-500/20 transition-colors"
+                    >
+                        ❌ End
+                    </button>
                 </div>
-                <div className="score-board">⭐ {score}</div>
-                <button className="sound-toggle" onClick={() => setSoundOn(s => !s)}>{soundOn ? '🔊' : '🔇'}</button>
-            </div>
 
-            <h2>Memory Match 🧠</h2>
-
-            <div className="memory-progress">
-                <span className="memory-progress-text">
-                    {foundPairs} of {totalPairs} pairs found
-                </span>
-                <div className="memory-progress-bar">
-                    <div className="memory-progress-fill" style={{ width: `${totalPairs > 0 ? (foundPairs / totalPairs) * 100 : 0}%` }} />
-                </div>
-            </div>
-
-            {peeking && <div className="peek-banner">👀 Memorize the cards!</div>}
-
-            <div className={`memory-grid ${difficulty}`}>
-                {cards.map(card => {
-                    const isFlipped = flipped.includes(card.id) || matched.includes(card.id) || peeking;
-                    const isMatched = matched.includes(card.id);
-                    const isWrong = wrongPair.includes(card.id);
-                    return (
-                        <div
-                            key={card.id}
-                            className={`memory-card ${isFlipped ? 'flipped' : ''} ${isMatched ? 'matched' : ''} ${isWrong ? 'wrong-card' : ''}`}
-                            onClick={() => handleCardClick(card.id)}
-                        >
-                            <div className="card-inner">
-                                <div className="card-front">?</div>
-                                <div className="card-back">{card.content}</div>
-                            </div>
-                        </div>
-                    );
-                })}
-            </div>
-
-            {matched.length === cards.length && cards.length > 0 && !showCelebration && (
-                <div className="completion-message">
-                    <h2>🎉 All Pairs Found! 🎉</h2>
-                    <div className="btn-group">
-                        <button className="restart-btn" onClick={() => startNewGame(false)}>Play Again</button>
-                        <button className="next-level-btn" onClick={() => startNewGame(true, totalPairs)}>Next Level ➡</button>
+                <div className="flex gap-4">
+                    <div className="px-6 py-2 bg-blue-500/20 border border-blue-500/40 rounded-full">
+                        <span className="text-xl font-bold text-blue-400">Moves: {moves}</span>
+                    </div>
+                    <div className="px-6 py-2 bg-yellow-500/20 border border-yellow-500/40 rounded-full">
+                        <span className="text-xl font-bold text-yellow-400">⭐ {score}</span>
                     </div>
                 </div>
-            )}
+
+                <button
+                    className="p-3 bg-slate-800 text-slate-400 hover:text-white rounded-xl transition-colors"
+                    onClick={() => setSoundOn(s => !s)}
+                    title="Toggle Sound"
+                >
+                    {soundOn ? '🔊' : '🔇'}
+                </button>
+            </div>
+
+            <h2 className="text-3xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-emerald-500 mb-8 animate-pulse">
+                Space Memory 🧠
+            </h2>
+
+            {/* Grid */}
+            <div className={`grid gap-4 md:gap-6 animate-fade-in-up
+                ${difficulty === 'easy' ? 'grid-cols-3' : 'grid-cols-4'}
+            `}>
+                {cards.map((card, index) => (
+                    <button
+                        key={index}
+                        className={`
+                            w-20 h-24 md:w-32 md:h-40 rounded-2xl perspective-1000 transition-all duration-300 transform
+                            ${flipped.includes(index) || matched.includes(index) ? 'rotate-y-180' : ''}
+                            ${matched.includes(index) ? 'opacity-50 cursor-default' : 'hover:-translate-y-2 hover:shadow-cyan-500/30'}
+                        `}
+                        onClick={() => handleCardClick(index)}
+                    >
+                        <div className={`
+                            relative w-full h-full text-4xl md:text-6xl flex items-center justify-center rounded-2xl shadow-xl transition-all duration-500
+                            ${flipped.includes(index) || matched.includes(index)
+                                ? 'bg-white text-black rotate-y-180 border-4 border-cyan-400'
+                                : 'bg-slate-800 border-4 border-slate-700'
+                            }
+                        `}>
+                            {flipped.includes(index) || matched.includes(index) ? card.content : '❓'}
+                        </div>
+                    </button>
+                ))}
+            </div>
         </div>
     );
 };

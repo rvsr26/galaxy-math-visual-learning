@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import './AvatarStation.css';
 import { useSound } from './useSound';
+import API_BASE_URL from '../config';
 
 const ITEMS = {
     helmets: [
@@ -29,10 +29,7 @@ const AvatarStation = ({ user, coins, avatar, onUpdateAvatar, onBack }) => {
     const { playBuy } = useSound();
 
     const handleEquip = async (category, itemId, cost) => {
-        if (avatar[category] === itemId) return; // Already equipped
-
-        // If it's a paid item check if we own it (simplified: for now we just check if we have enough coins to "buy/equip" it again, 
-        // in a real app we'd have an inventory array. For this MVP, we'll assume unlocking = dragging coin balance down or we just check cost)
+        if (avatar[category] === itemId) return;
 
         if (cost > coins) {
             setMessage(`Not enough Star Coins! You need ${cost} ⭐`);
@@ -41,11 +38,9 @@ const AvatarStation = ({ user, coins, avatar, onUpdateAvatar, onBack }) => {
         }
 
         try {
-            // Optimistic update
             const newAvatar = { ...avatar, [category]: itemId };
 
-            // Call API to update avatar
-            const res = await fetch('http://localhost:5000/api/user/avatar', {
+            const res = await fetch(`${API_BASE_URL}/api/user/avatar`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -55,12 +50,8 @@ const AvatarStation = ({ user, coins, avatar, onUpdateAvatar, onBack }) => {
             });
 
             if (res.ok) {
-                // If it cost money, deduct it (simple mock logic for now, or assume backend handles if we added logic)
-                // Since our backend endpoint for avatar doesn't deduct coins automatically, we should technically call 'add-coins' with negative amount
-                // But for simplicity/MVP let's just allow equipping if balance > cost, without deducting, 
-                // OR better: deduct coins if cost > 0.
                 if (cost > 0) {
-                    await fetch('http://localhost:5000/api/user/add-coins', {
+                    await fetch(`${API_BASE_URL}/api/user/add-coins`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -70,7 +61,7 @@ const AvatarStation = ({ user, coins, avatar, onUpdateAvatar, onBack }) => {
                     });
                 }
 
-                onUpdateAvatar(newAvatar, cost); // Update parent state, maybe pass cost to update local coin balance
+                onUpdateAvatar(newAvatar, cost);
                 setMessage('Equipped! 🚀');
                 playBuy();
                 setTimeout(() => setMessage(''), 2000);
@@ -81,39 +72,125 @@ const AvatarStation = ({ user, coins, avatar, onUpdateAvatar, onBack }) => {
     };
 
     return (
-        <div className="avatar-station">
-            <div className="station-header">
-                <button className="back-btn" onClick={onBack}>⬅ Back to Map</button>
-                <h1>Astronaut Station 👨‍🚀</h1>
-                <div className="coin-display">⭐ {coins}</div>
-            </div>
+        <div className="min-h-screen bg-slate-950 pt-24 px-4 pb-12 flex flex-col items-center">
 
-            <div className="avatar-preview-container">
-                <div className="avatar-figure" style={{ backgroundColor: ITEMS.suits.find(s => s.id === avatar.suit)?.color || '#ddd' }}>
-                    <div className="avatar-helmet-icon">{ITEMS.helmets.find(h => h.id === avatar.helmet)?.icon}</div>
-                    <div className="avatar-pet-icon">{ITEMS.pets.find(p => p.id === avatar.pet)?.icon}</div>
+            {/* Header */}
+            <div className="w-full max-w-4xl flex items-center justify-between mb-8">
+                <button
+                    onClick={onBack}
+                    className="px-4 py-2 bg-slate-800/50 hover:bg-slate-700 text-white rounded-xl font-bold border border-white/10 transition-colors"
+                >
+                    ⬅ Back
+                </button>
+                <div className="px-6 py-2 bg-yellow-500/20 border border-yellow-500/40 rounded-full shadow-[0_0_15px_rgba(234,179,8,0.2)]">
+                    <span className="text-xl font-bold text-yellow-400">⭐ {coins}</span>
                 </div>
             </div>
 
-            {message && <div className="message-toast">{message}</div>}
+            <h2 className="text-3xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 mb-8">
+                Astronaut Station 👨‍🚀
+            </h2>
 
-            <div className="station-tabs">
-                <button className={activeTab === 'helmets' ? 'active' : ''} onClick={() => setActiveTab('helmets')}>Helmets</button>
-                <button className={activeTab === 'suits' ? 'active' : ''} onClick={() => setActiveTab('suits')}>Suits</button>
-                <button className={activeTab === 'pets' ? 'active' : ''} onClick={() => setActiveTab('pets')}>Companions</button>
-            </div>
+            <div className="w-full max-w-4xl grid md:grid-cols-2 gap-8">
 
-            <div className="items-grid">
-                {ITEMS[activeTab].map(item => (
-                    <div key={item.id} className={`shop-item ${avatar[activeTab.slice(0, -1)] === item.id ? 'equipped' : ''}`}
-                        onClick={() => handleEquip(activeTab.slice(0, -1), item.id, item.cost)}>
-                        <div className="item-icon">{item.icon || (item.color && <div style={{ width: 30, height: 30, background: item.color, borderRadius: '50%' }}></div>)}</div>
-                        <div className="item-name">{item.name}</div>
-                        <div className="item-cost">{item.cost === 0 ? 'Free' : `${item.cost} ⭐`}</div>
-                        {avatar[activeTab.slice(0, -1)] === item.id && <div className="equipped-badge">✅</div>}
+                {/* Character Preview */}
+                <div className="glass-panel p-8 flex flex-col items-center justify-center min-h-[400px] relative overflow-hidden">
+                    <div className="absolute inset-0 bg-blue-500/10 blur-3xl animate-pulse"></div>
+
+                    <div className="relative w-48 h-64 flex items-center justify-center transition-all duration-500">
+                        {/* Body / Suit */}
+                        <div
+                            className="w-32 h-44 rounded-3xl relative shadow-2xl transition-colors duration-300 transform hover:scale-105"
+                            style={{ backgroundColor: ITEMS.suits.find(s => s.id === avatar.suit)?.color || '#ddd' }}
+                        >
+                            {/* Helmet */}
+                            <div className="absolute -top-12 left-1/2 -translate-x-1/2 text-7xl drop-shadow-lg filter">
+                                {ITEMS.helmets.find(h => h.id === avatar.helmet)?.icon}
+                            </div>
+                            {/* Pet */}
+                            <div className="absolute -bottom-4 -right-8 text-5xl animate-bounce-slow drop-shadow-md">
+                                {ITEMS.pets.find(p => p.id === avatar.pet)?.icon}
+                            </div>
+
+                            {/* Suit Details (Mock) */}
+                            <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-3/4 h-2 bg-black/20 rounded-full"></div>
+                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 w-16 h-16 bg-white/20 rounded-full border-4 border-white/30"></div>
+                        </div>
                     </div>
-                ))}
+
+                    <div className="mt-8 text-xl font-bold text-white tracking-widest uppercase">
+                        {user.username}
+                    </div>
+                </div>
+
+                {/* Shop / Inventory */}
+                <div className="flex flex-col gap-6">
+
+                    {/* Tabs */}
+                    <div className="flex p-1 bg-slate-900 rounded-xl">
+                        {['helmets', 'suits', 'pets'].map(tab => (
+                            <button
+                                key={tab}
+                                className={`flex-1 py-3 rounded-lg font-bold text-sm md:text-base transition-all ${activeTab === tab
+                                        ? 'bg-blue-600 text-white shadow-lg'
+                                        : 'text-slate-400 hover:text-white'
+                                    }`}
+                                onClick={() => setActiveTab(tab)}
+                            >
+                                {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                            </button>
+                        ))}
+                    </div>
+
+                    {/* Items Grid */}
+                    <div className="grid grid-cols-2 gap-4">
+                        {ITEMS[activeTab].map(item => {
+                            const isEquipped = avatar[activeTab.slice(0, -1)] === item.id;
+                            const isAffordable = coins >= item.cost;
+
+                            return (
+                                <button
+                                    key={item.id}
+                                    className={`
+                                        glass-panel p-4 flex flex-col items-center gap-2 transition-all duration-200 border-2
+                                        ${isEquipped
+                                            ? 'border-green-500 bg-green-500/10 shadow-[0_0_15px_rgba(34,197,94,0.3)]'
+                                            : 'border-transparent hover:border-blue-500 hover:bg-slate-800'
+                                        }
+                                    `}
+                                    onClick={() => handleEquip(activeTab.slice(0, -1), item.id, item.cost)}
+                                    disabled={!isAffordable && !isEquipped} // Optional: allow clicking to see price even if cant buy
+                                >
+                                    <div className="text-4xl mb-2">
+                                        {item.icon || (
+                                            <div className="w-10 h-10 rounded-full border-2 border-white/20"
+                                                style={{ background: item.color }}></div>
+                                        )}
+                                    </div>
+                                    <div className="font-bold text-slate-200 text-sm">{item.name}</div>
+
+                                    {isEquipped ? (
+                                        <div className="px-3 py-1 bg-green-500 text-white text-xs font-bold rounded-full mt-2">
+                                            Equipped
+                                        </div>
+                                    ) : (
+                                        <div className={`text-sm font-bold mt-2 ${isAffordable ? 'text-yellow-400' : 'text-red-400 opacity-50'}`}>
+                                            {item.cost === 0 ? 'FREE' : `${item.cost} ⭐`}
+                                        </div>
+                                    )}
+                                </button>
+                            );
+                        })}
+                    </div>
+                </div>
             </div>
+
+            {/* Notification Toast */}
+            {message && (
+                <div className="fixed bottom-8 left-1/2 -translate-x-1/2 px-6 py-3 bg-slate-900 border border-cyan-500 text-cyan-400 rounded-xl shadow-2xl animate-fade-in-up font-bold z-50">
+                    {message}
+                </div>
+            )}
         </div>
     );
 };

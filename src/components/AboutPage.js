@@ -1,101 +1,302 @@
-import React from 'react';
-import './AboutPage.css';
+import React, { useState, useRef, useEffect } from 'react';
+import { motion, useMotionValue, useTransform, useSpring, AnimatePresence } from 'framer-motion';
+import { useSound } from './useSound';
+import ParticleField from './ParticleField';
+import MagneticWrapper from './MagneticWrapper';
 import studentPhoto from './image.png';
 
-const AboutPage = ({ onBack }) => {
+// Scramble Text Component
+const ScrambleText = ({ text, className }) => {
+    const [display, setDisplay] = useState(text);
+    const { playClick } = useSound();
+    const chars = '!@#$%^&*()_+~`|}{[]\:;?><,./-=';
+
+    const scramble = () => {
+        playClick();
+        let iteration = 0;
+        const interval = setInterval(() => {
+            setDisplay(text.split('').map((letter, index) => {
+                if (index < iteration) return text[index];
+                return chars[Math.floor(Math.random() * chars.length)];
+            }).join(''));
+
+            if (iteration >= text.length) clearInterval(interval);
+            iteration += 1 / 3;
+        }, 30);
+    };
+
     return (
-        <div className="about-container">
-            <div className="about-topbar">
-                <button className="about-back-btn" onClick={onBack}>⬅ Back</button>
+        <motion.h1
+            onMouseEnter={scramble}
+            className={`${className} cursor-pointer select-none`}
+            whileHover={{ scale: 1.02 }}
+        >
+            {display}
+        </motion.h1>
+    );
+};
+
+const AboutPage = ({ onBack }) => {
+    const { playClick, playCount, playUnlock } = useSound();
+
+    // 3D Tilt Logic for Profile Card
+    const x = useMotionValue(0);
+    const y = useMotionValue(0);
+    const mouseX = useSpring(x, { stiffness: 150, damping: 15 });
+    const mouseY = useSpring(y, { stiffness: 150, damping: 15 });
+
+    const rotateX = useTransform(mouseY, [-0.5, 0.5], ["15deg", "-15deg"]);
+    const rotateY = useTransform(mouseX, [-0.5, 0.5], ["-15deg", "15deg"]);
+
+    const handleMouseMove = (e) => {
+        const rect = e.currentTarget.getBoundingClientRect();
+        const width = rect.width;
+        const height = rect.height;
+        const mouseXVal = e.clientX - rect.left;
+        const mouseYVal = e.clientY - rect.top;
+        const xPct = mouseXVal / width - 0.5;
+        const yPct = mouseYVal / height - 0.5;
+        x.set(xPct);
+        y.set(yPct);
+    };
+
+    const handleMouseLeave = () => {
+        x.set(0);
+        y.set(0);
+    };
+
+    // Secret Mode
+    const [clickCount, setClickCount] = useState(0);
+    const handleProfileClick = () => {
+        setClickCount(prev => prev + 1);
+        playClick();
+        if (clickCount + 1 === 5) {
+            playUnlock();
+            // Could add a confetti effect here in future
+        }
+    };
+
+    // Animation variants
+    const containerVariants = {
+        hidden: { opacity: 0 },
+        visible: {
+            opacity: 1,
+            transition: { staggerChildren: 0.1, delayChildren: 0.2 }
+        }
+    };
+
+    const itemVariants = {
+        hidden: { y: 20, opacity: 0 },
+        visible: {
+            y: 0,
+            opacity: 1,
+            transition: { type: "spring", stiffness: 100 }
+        }
+    };
+
+    return (
+        <motion.div
+            initial="hidden"
+            animate="visible"
+            variants={containerVariants}
+            className="min-h-screen bg-slate-950 pt-24 px-4 pb-12 flex flex-col items-center overflow-x-hidden relative"
+        >
+            {/* Interactive Background */}
+            <ParticleField />
+
+            <div className="fixed inset-0 pointer-events-none z-0">
+                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-500/10 rounded-full blur-[100px]" />
+                <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-500/10 rounded-full blur-[100px]" />
             </div>
 
-            {/* Hero Banner */}
-            <div className="about-hero">
-                <div className="about-hero-badge">Lab Project · 2025</div>
-                <h1 className="about-title">Visual Math Learning Portal</h1>
-                <p className="about-subtitle">
-                    A gamified learning platform designed to help children with autism master
-                    basic mathematical concepts through visual aids and interactive exercises.
-                </p>
-            </div>
+            {/* Header */}
+            <motion.div variants={itemVariants} className="w-full max-w-6xl flex items-center mb-8 relative z-10 font-sans">
+                <MagneticWrapper>
+                    <button
+                        onClick={() => { playClick(); onBack(); }}
+                        onMouseEnter={() => playClick()}
+                        className="group px-5 py-2.5 bg-slate-800/50 hover:bg-slate-700 text-white rounded-xl font-bold border border-white/10 transition-all active:scale-95 flex items-center gap-2 backdrop-blur-sm"
+                    >
+                        <span className="group-hover:-translate-x-1 transition-transform">⬅</span> Back
+                    </button>
+                </MagneticWrapper>
+            </motion.div>
 
-            {/* Main Content */}
-            <div className="about-main">
-
-                {/* Left — Student Profile Card */}
-                <div className="about-profile-card">
-                    <div className="about-avatar">
-                        <img src={studentPhoto} alt="R. Vishnu Sathwick" className="about-avatar-img" />
+            {/* Hero Section */}
+            <motion.div variants={itemVariants} className="w-full max-w-6xl relative z-10 mb-16">
+                <div className="relative bg-gradient-to-r from-slate-900/80 to-slate-800/80 backdrop-blur-xl border border-white/10 rounded-[2rem] p-8 md:p-12 overflow-hidden shadow-2xl">
+                    <div className="absolute top-0 right-0 p-8 opacity-20 pointer-events-none">
+                        <motion.div
+                            animate={{ y: [0, -15, 0], rotate: [0, 5, -5, 0] }}
+                            transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+                            className="text-9xl"
+                        >
+                            🚀
+                        </motion.div>
                     </div>
-                    <div className="about-profile-info">
-                        <h2 className="about-profile-name">R. Vishnu Sathwick</h2>
-                        <p className="about-profile-roll">CB.SC.U4CSE23644</p>
-                        <div className="about-profile-tags">
-                            <span className="about-tag">Full Stack Dev</span>
-                            <span className="about-tag">React</span>
-                            <span className="about-tag">Node.js</span>
-                        </div>
-                        <div className="about-profile-links">
-                            <a href="https://github.com/rvsr26/galaxy-math-visual-learning" target="_blank" rel="noreferrer" className="about-link-btn">
-                                📁 GitHub
-                            </a>
-                            <a href="https://galaxy-math-visual-learning.vercel.app/" target="_blank" rel="noreferrer" className="about-link-btn">
-                                🚀 Live Demo
-                            </a>
-                        </div>
+
+                    <div className="relative z-10 max-w-3xl">
+                        <motion.div
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.3 }}
+                            className="inline-flex items-center gap-2 px-3 py-1 mb-6 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-300 text-sm font-semibold"
+                        >
+                            <span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse"></span>
+                            Lab Project 2026
+                        </motion.div>
+
+                        <ScrambleText
+                            text="Visual Math Learning Portal"
+                            className="text-4xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 mb-6 leading-tight drop-shadow-sm"
+                        />
+
+                        <p className="text-lg md:text-xl text-slate-300 leading-relaxed max-w-2xl font-light">
+                            Empowering children with <span className="text-white font-medium">autism</span> to master mathematical concepts through
+                            an immersive, gamified visual learning experience.
+                        </p>
                     </div>
                 </div>
+            </motion.div>
 
-                {/* Right — Info Grid */}
-                <div className="about-info-grid">
+            {/* Main Grid */}
+            <div className="w-full max-w-6xl z-10 grid md:grid-cols-12 gap-8">
 
-                    <div className="about-info-card">
-                        <div className="about-info-icon">📚</div>
-                        <div>
-                            <h3>Course Details</h3>
-                            <p><span className="label">Course</span>Full Stack Frameworks</p>
-                            <p><span className="label">Code</span>23CSE461</p>
-                            <p><span className="label">Faculty</span>Dr. T. Senthil Kumar</p>
-                            <p><span className="label">Semester</span>6th Semester, 2025</p>
+                {/* Left Column - Profile (4 cols) With 3D Tilt */}
+                <motion.div variants={itemVariants} className="md:col-span-4 h-full perspective-1000">
+                    <motion.div
+                        style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
+                        onMouseMove={handleMouseMove}
+                        onMouseLeave={handleMouseLeave}
+                        onClick={handleProfileClick}
+                        className="bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-3xl p-6 h-full shadow-lg flex flex-col items-center text-center hover:border-white/20 transition-colors duration-300 relative group cursor-pointer"
+                    >
+                        <div style={{ transform: "translateZ(50px)" }} className="relative mb-6">
+                            <div className="absolute inset-0 bg-gradient-to-br from-cyan-500 to-purple-600 rounded-full blur-2xl opacity-50 group-hover:opacity-75 transition-opacity"></div>
+                            <div className="relative w-48 h-48 rounded-full p-1 bg-gradient-to-br from-cyan-400 to-purple-500">
+                                <img
+                                    src={studentPhoto}
+                                    alt="Student"
+                                    className="w-full h-full object-cover rounded-full border-4 border-slate-900"
+                                    onError={(e) => { e.target.onerror = null; e.target.src = 'https://ui-avatars.com/api/?name=VS&background=0D8ABC&color=fff&size=200'; }}
+                                />
+                            </div>
+                            <div className="absolute bottom-2 right-2 bg-slate-900 border border-slate-700 p-1.5 rounded-full text-xl shadow-lg">👨‍💻</div>
                         </div>
-                    </div>
 
-                    <div className="about-info-card">
-                        <div className="about-info-icon">🎮</div>
-                        <div>
-                            <h3>Games Available</h3>
-                            <ul className="about-game-list">
-                                <li>🍎 Counting Game</li>
-                                <li>➕ Math Fun</li>
-                                <li>🎨 Pattern Recognition</li>
-                                <li>🧠 Memory Match</li>
-                                <li>📚 Learning Mode</li>
+                        <div style={{ transform: "translateZ(30px)" }}>
+                            <h2 className="text-2xl font-bold text-white mb-1">R. Vishnu Sathwick</h2>
+                            <p className="text-slate-400 mb-4 font-mono text-sm">CB.SC.U4CSE23644</p>
+                        </div>
+
+                        <div className="w-full h-px bg-white/10 my-4"></div>
+
+                        <div style={{ transform: "translateZ(20px)" }} className="flex flex-wrap justify-center gap-2 mb-8">
+                            {['React', 'Node.js', 'MongoDB', 'Tailwind'].map((tag) => (
+                                <span key={tag} className="px-2.5 py-1 bg-slate-800 text-slate-300 text-xs rounded-md border border-white/5 font-medium">
+                                    {tag}
+                                </span>
+                            ))}
+                        </div>
+
+                        <div style={{ transform: "translateZ(20px)" }} className="mt-auto w-full space-y-3">
+                            <MagneticWrapper>
+                                <a
+                                    href="https://github.com/rvsr26/galaxy-math-visual-learning"
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    onMouseEnter={() => playClick()}
+                                    className="flex items-center justify-center gap-2 w-full py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-bold transition-all border border-white/5 hover:border-white/20"
+                                >
+                                    <span>GitHub Repository</span>
+                                    <span className="text-slate-500">↗</span>
+                                </a>
+                            </MagneticWrapper>
+                        </div>
+                    </motion.div>
+                </motion.div>
+
+                {/* Right Column - Info (8 cols) */}
+                <div className="md:col-span-8 flex flex-col gap-6">
+
+                    {/* Stats / Info Row */}
+                    <div className="grid sm:grid-cols-2 gap-6">
+                        <motion.div variants={itemVariants} className="bg-slate-900/60 backdrop-blur-md border border-white/10 rounded-3xl p-6 hover:bg-slate-800/60 transition-colors hover:scale-[1.02]">
+                            <div className="w-12 h-12 rounded-2xl bg-blue-500/20 flex items-center justify-center text-2xl mb-4">📚</div>
+                            <h3 className="text-lg font-bold text-white mb-2">Academic Context</h3>
+                            <ul className="space-y-2 text-sm text-slate-400">
+                                <li className="flex justify-between border-b border-white/5 pb-1"><span>Course</span> <span className="text-slate-200">Full Stack Frameworks</span></li>
+                                <li className="flex justify-between border-b border-white/5 pb-1"><span>Code</span> <span className="text-slate-200">23CSE461</span></li>
+                                <li className="flex justify-between pt-1"><span>Semester</span> <span className="text-slate-200">VI (2026)</span></li>
                             </ul>
-                        </div>
+                        </motion.div>
+
+                        <motion.div variants={itemVariants} className="bg-slate-900/60 backdrop-blur-md border border-white/10 rounded-3xl p-6 hover:bg-slate-800/60 transition-colors hover:scale-[1.02]">
+                            <div className="w-12 h-12 rounded-2xl bg-purple-500/20 flex items-center justify-center text-2xl mb-4">🎯</div>
+                            <h3 className="text-lg font-bold text-white mb-2">Project Mentorship</h3>
+                            <div className="flex items-center gap-3 mt-3">
+                                <div className="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center font-bold text-slate-300">SK</div>
+                                <div>
+                                    <p className="text-slate-200 font-medium font-sans">Dr. T. Senthil Kumar</p>
+                                    <p className="text-slate-500 text-xs">Faculty Guide</p>
+                                </div>
+                            </div>
+                        </motion.div>
                     </div>
 
-                    <div className="about-info-card">
-                        <div className="about-info-icon">🛠️</div>
-                        <div>
-                            <h3>Tech Stack</h3>
-                            <ul className="about-game-list">
-                                <li>⚛️ React.js (Frontend)</li>
-                                <li>🟢 Node.js + Express (Backend)</li>
-                                <li>🍃 MongoDB (Database)</li>
-                                <li>🔐 JWT Authentication</li>
-                                <li>🎵 Web Audio API</li>
-                            </ul>
+                    {/* features Grid */}
+                    <motion.div variants={itemVariants} className="bg-slate-900/60 backdrop-blur-md border border-white/10 rounded-3xl p-6 flex-1">
+                        <div className="flex items-center gap-3 mb-6">
+                            <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 flex items-center justify-center text-2xl">🧩</div>
+                            <div>
+                                <h3 className="text-xl font-bold text-white">Interactive Modules</h3>
+                                <p className="text-slate-400 text-sm">Gamified exercises with musical interactions</p>
+                            </div>
                         </div>
-                    </div>
+
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                            {[
+                                { icon: '🍎', name: 'Counting', color: 'bg-red-500/10 border-red-500/20 text-red-300' },
+                                { icon: '➕', name: 'Addition', color: 'bg-blue-500/10 border-blue-500/20 text-blue-300' },
+                                { icon: '🧠', name: 'Memory', color: 'bg-yellow-500/10 border-yellow-500/20 text-yellow-300' },
+                                { icon: '🎨', name: 'Patterns', color: 'bg-purple-500/10 border-purple-500/20 text-purple-300' },
+                                { icon: '🍕', name: 'Fractions', color: 'bg-orange-500/10 border-orange-500/20 text-orange-300' },
+                                { icon: '🍪', name: 'Sharing', color: 'bg-emerald-500/10 border-emerald-500/20 text-emerald-300' },
+                            ].map((item, i) => (
+                                <motion.div
+                                    key={item.name}
+                                    whileHover={{ scale: 1.1, backgroundColor: "rgba(255,255,255,0.05)" }}
+                                    whileTap={{ scale: 0.95 }}
+                                    onMouseEnter={() => playCount(i + 1)}
+                                    className={`p-3 rounded-xl border ${item.color} flex flex-col items-center justify-center gap-2 text-center transition-all cursor-pointer`}
+                                >
+                                    <span className="text-2xl filter drop-shadow-lg">{item.icon}</span>
+                                    <span className="text-xs font-bold">{item.name}</span>
+                                </motion.div>
+                            ))}
+                        </div>
+                    </motion.div>
+
+                    {/* Accessibility Note */}
+                    <motion.div variants={itemVariants} className="bg-gradient-to-r from-blue-900/40 to-cyan-900/40 border border-blue-500/20 rounded-3xl p-6 relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 blur-3xl -mr-10 -mt-10"></div>
+                        <h3 className="text-lg font-bold text-white mb-2 flex items-center gap-2 relative z-10">
+                            <span className="text-2xl">♿</span> Accessibility First
+                        </h3>
+                        <p className="text-slate-300 text-sm leading-relaxed relative z-10">
+                            Designed with high-contrast visuals, simplified navigation, and clear feedback loops specifically tailored for neurodiverse learners.
+                        </p>
+                    </motion.div>
 
                 </div>
             </div>
 
-            {/* Footer Strip */}
-            <div className="about-footer-strip">
-                <span>© 2025 Visual Math Learning Portal · Amrita School of Computing</span>
-            </div>
-        </div>
+            {/* Footer */}
+            <motion.div variants={itemVariants} className="mt-16 text-center text-slate-600 text-sm relative z-10">
+                <p>© 2026 Visual Math Learning Portal · Amrita School of Computing</p>
+            </motion.div>
+
+        </motion.div>
     );
 };
 

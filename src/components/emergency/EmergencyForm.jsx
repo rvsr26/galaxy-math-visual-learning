@@ -34,19 +34,19 @@ class EmergencyFormInternal extends Component {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
-                className="max-w-2xl mx-auto p-6"
+                className="max-w-2xl mx-auto p-4"
             >
-                <div className="glass rounded-3xl p-8 sm:p-10 shadow-xl border border-white/50">
-                    <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center">
-                        Incident Report
+                <div className="bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-3xl p-8 sm:p-12 shadow-2xl">
+                    <h2 className="text-3xl font-bold text-white mb-6 text-center">
+                        Complaint Form
                     </h2>
-                    <p className="text-gray-600 text-center mb-8">
-                        You have dialed emergency services. If safe to do so, please provide additional details to help us assist you better.
+                    <p className="text-slate-400 text-center mb-10 max-w-lg mx-auto">
+                        We value your feedback. Please use this form to submit a complaint or report an issue. For medical emergencies, call emergency services.
                     </p>
 
                     <form onSubmit={this.handleSubmit} className="space-y-6">
                         <div>
-                            <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+                            <label htmlFor="name" className="block text-sm font-bold text-slate-300 mb-2 uppercase tracking-wide">
                                 Your Name (Optional)
                             </label>
                             <input
@@ -55,13 +55,13 @@ class EmergencyFormInternal extends Component {
                                 name="name"
                                 value={name}
                                 onChange={this.handleChange}
-                                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all bg-white/50 backdrop-blur-sm"
+                                className="w-full px-5 py-4 rounded-xl bg-slate-800/50 border border-slate-700 text-white placeholder-slate-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all shadow-inner"
                                 placeholder="Enter your name"
                             />
                         </div>
 
                         <div>
-                            <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-2">
+                            <label htmlFor="location" className="block text-sm font-bold text-slate-300 mb-2 uppercase tracking-wide">
                                 Current Location
                             </label>
                             <input
@@ -71,13 +71,13 @@ class EmergencyFormInternal extends Component {
                                 value={location}
                                 onChange={this.handleChange}
                                 required
-                                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all bg-white/50 backdrop-blur-sm"
+                                className="w-full px-5 py-4 rounded-xl bg-slate-800/50 border border-slate-700 text-white placeholder-slate-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all shadow-inner"
                                 placeholder="e.g., Central Park, Main St."
                             />
                         </div>
 
                         <div>
-                            <label htmlFor="details" className="block text-sm font-medium text-gray-700 mb-2">
+                            <label htmlFor="details" className="block text-sm font-bold text-slate-300 mb-2 uppercase tracking-wide">
                                 Incident Details
                             </label>
                             <textarea
@@ -86,22 +86,22 @@ class EmergencyFormInternal extends Component {
                                 value={details}
                                 onChange={this.handleChange}
                                 rows="4"
-                                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all bg-white/50 backdrop-blur-sm resize-none"
+                                className="w-full px-5 py-4 rounded-xl bg-slate-800/50 border border-slate-700 text-white placeholder-slate-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all shadow-inner resize-none"
                                 placeholder="Describe what happened..."
                             />
                         </div>
 
-                        <div className="flex gap-4 pt-4">
+                        <div className="flex gap-4 pt-6">
                             <button
                                 type="button"
                                 onClick={() => navigate("/emergency")}
-                                className="flex-1 px-6 py-3 rounded-xl font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 transition-colors"
+                                className="flex-1 px-6 py-4 rounded-xl font-bold text-slate-400 bg-slate-800 hover:bg-slate-700 hover:text-white transition-colors border border-white/5"
                             >
                                 Skip
                             </button>
                             <button
                                 type="submit"
-                                className="flex-1 px-6 py-3 rounded-xl font-bold text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:shadow-lg hover:-translate-y-0.5 transition-all"
+                                className="flex-1 px-6 py-4 rounded-xl font-bold text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 shadow-lg hover:shadow-blue-500/20 hover:-translate-y-0.5 transition-all text-lg"
                             >
                                 Submit Report
                             </button>

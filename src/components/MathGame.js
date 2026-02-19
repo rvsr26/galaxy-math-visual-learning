@@ -1,170 +1,159 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
-import './MathGame.css';
 import CelebrationOverlay from './CelebrationOverlay';
 import ScoreOverlay from './ScoreOverlay';
 import { useSound } from './useSound';
-import html2canvas from 'html2canvas';
 
-const ENCOURAGEMENTS = [
-    'Math Star! ⭐', 'Brilliant! 💫', 'You got it! 🎉',
-    'Amazing! 🚀', 'Super smart! 🧠', 'Correct! 🏆',
-    'Wow! 🌟', 'Perfect! 💎', 'Genius! 🦄', 'Excellent! 🎊'
-];
-
-const OPERATORS = {
-    easy: ['+', '-', '×'],
-    medium: ['+', '-', '×'],
-    hard: ['+', '-', '×', '÷'],
-};
-
-const MathGame = ({ difficulty, onBack, onScoreSave, gameType }) => {
-    // Refs for screen capture
-    const gameRef = React.useRef(null);
-    const [num1, setNum1] = useState(0);
-    const [num2, setNum2] = useState(0);
-    const [operator, setOperator] = useState('+');
+const MathGame = ({ difficulty, gameType, onBack, onScoreSave }) => {
+    const [problem, setProblem] = useState({ q: '', a: 0 });
     const [options, setOptions] = useState([]);
     const [message, setMessage] = useState('');
     const [score, setScore] = useState(0);
     const [wrongBtn, setWrongBtn] = useState(null);
     const [correctBtn, setCorrectBtn] = useState(null);
-    const [showHint, setShowHint] = useState(false);
     const [showCelebration, setShowCelebration] = useState(false);
     const [showScore, setShowScore] = useState(false);
     const [soundOn, setSoundOn] = useState(true);
+    const [isListening, setIsListening] = useState(false);
+    const recognitionRef = React.useRef(null);
     const { playCorrect, playWrong, speak, isMilestone } = useSound(soundOn);
 
-    useEffect(() => { generateProblem(); }, [difficulty, gameType]);
-
-    // Keyboard support
-    useEffect(() => {
-        const handleKeyDown = (e) => {
-            if (e.key >= '1' && e.key <= '3') {
-                const index = parseInt(e.key) - 1;
-                if (options[index] !== undefined) {
-                    checkAnswer(options[index]);
-                }
-            }
-        };
-        window.addEventListener('keydown', handleKeyDown);
-        return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [options]);
-
-    const handleScreenCapture = async () => {
-        if (gameRef.current) {
-            const canvas = await html2canvas(gameRef.current);
-            const image = canvas.toDataURL("image/png");
-            const link = document.createElement('a');
-            link.href = image;
-            link.download = 'math-game-screenshot.png';
-            link.click();
-            speak('Screen captured!');
+    const getSymbol = () => {
+        switch (gameType) {
+            case 'addition': return '+';
+            case 'subtraction': return '-';
+            case 'multiplication': return '×';
+            default: return '+';
         }
     };
 
-    const getAnswer = (n1, n2, op) => {
-        if (op === '+') return n1 + n2;
-        if (op === '-') return n1 - n2;
-        if (op === '×') return n1 * n2;
-        if (op === '÷') return n1 / n2;
-        return n1 + n2;
+    const getTitle = () => {
+        switch (gameType) {
+            case 'addition': return 'Addition Adventure';
+            case 'subtraction': return 'Subtraction Squad';
+            case 'multiplication': return 'Multiplication Mission';
+            default: return 'Math Game';
+        }
+    };
+
+    const getColor = () => {
+        switch (gameType) {
+            case 'addition': return 'from-red-400 to-rose-600';
+            case 'subtraction': return 'from-cyan-400 to-blue-600';
+            case 'multiplication': return 'from-purple-400 to-fuchsia-600';
+            default: return 'from-slate-700 to-slate-900';
+        }
+    };
+
+    useEffect(() => {
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognitionRef.current = new SpeechRecognition();
+            recognitionRef.current.continuous = false;
+            recognitionRef.current.lang = 'en-US';
+            recognitionRef.current.interimResults = false;
+
+            recognitionRef.current.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                const numberMatch = transcript.match(/-?\d+/);
+                if (numberMatch) {
+                    const number = parseInt(numberMatch[0]);
+                    if (options.includes(number)) {
+                        checkAnswer(number);
+                        speak(`You said ${number}`);
+                    } else {
+                        speak(`I heard ${number}, but that is not an option.`);
+                    }
+                } else {
+                    speak("I didn't hear a number. Try again!");
+                }
+                setIsListening(false);
+            };
+
+            recognitionRef.current.onerror = (event) => {
+                console.error('Speech recognition error', event.error);
+                setIsListening(false);
+            };
+
+            recognitionRef.current.onend = () => {
+                setIsListening(false);
+            };
+        }
+    }, [options, speak]);
+
+    const toggleVoiceInput = () => {
+        if (isListening) {
+            recognitionRef.current?.stop();
+            setIsListening(false);
+        } else {
+            recognitionRef.current?.start();
+            setIsListening(true);
+            speak("Listening...");
+        }
     };
 
     const generateProblem = useCallback(() => {
-        let max = 5;
-        if (difficulty === 'medium') max = 10;
-        if (difficulty === 'hard') max = 12;
+        let n1, n2, ans;
+        let max = 10;
+        if (difficulty === 'medium') max = 20;
+        if (difficulty === 'hard') max = 50;
 
-        let op = '+';
-        if (gameType === 'addition') op = '+';
-        else if (gameType === 'subtraction') op = '-';
-        else if (gameType === 'multiplication') op = '×';
-        else {
-            // Fallback to mixed if no gameType specific
-            const ops = OPERATORS[difficulty] || ['+'];
-            op = ops[Math.floor(Math.random() * ops.length)];
+        if (gameType === 'addition') {
+            n1 = Math.floor(Math.random() * max) + 1;
+            n2 = Math.floor(Math.random() * max) + 1;
+            ans = n1 + n2;
+        } else if (gameType === 'subtraction') {
+            n1 = Math.floor(Math.random() * max) + 1;
+            n2 = Math.floor(Math.random() * n1); // Ensure positive result
+            ans = n1 - n2;
+        } else if (gameType === 'multiplication') {
+            let mMax = difficulty === 'hard' ? 12 : (difficulty === 'medium' ? 9 : 5);
+            n1 = Math.floor(Math.random() * mMax) + 1;
+            n2 = Math.floor(Math.random() * mMax) + 1;
+            ans = n1 * n2;
         }
 
-        let n1 = Math.floor(Math.random() * max) + 1;
-        let n2 = Math.floor(Math.random() * max) + 1;
+        setProblem({ q: `${n1} ${getSymbol()} ${n2} = ?`, a: ans });
 
-        // For subtraction, ensure non-negative result
-        if (op === '-' && n2 > n1) [n1, n2] = [n2, n1];
-
-        // For multiplication, keep numbers small to avoid huge results
-        if (op === '×') {
-            const mulMax = difficulty === 'hard' ? 9 : difficulty === 'medium' ? 6 : 4;
-            n1 = Math.floor(Math.random() * mulMax) + 1;
-            n2 = Math.floor(Math.random() * mulMax) + 1;
+        let opts = [ans];
+        while (opts.length < 3) {
+            let offset = Math.floor(Math.random() * 5) + 1;
+            let r = Math.random() > 0.5 ? ans + offset : ans - offset;
+            if (r >= 0 && !opts.includes(r)) opts.push(r);
         }
-
-        // For division (simple)
-        if (op === '÷') {
-            n2 = Math.floor(Math.random() * 4) + 1;
-            n1 = n2 * (Math.floor(Math.random() * 5) + 1);
-        }
-
-        const ans = getAnswer(n1, n2, op);
-        setNum1(n1); setNum2(n2); setOperator(op);
-
-        let opts = new Set([ans]);
-        while (opts.size < 3) {
-            let variance = Math.max(1, Math.floor(ans * 0.5));
-            // adjust range variance based on answer size
-            if (ans < 5) variance = 3;
-
-            let r = Math.max(0, ans + (Math.floor(Math.random() * (variance * 2 + 1)) - variance));
-            if (r !== ans) opts.add(r);
-        }
-        setOptions(Array.from(opts).sort((a, b) => a - b));
-        setMessage('');
+        setOptions(opts.sort(() => Math.random() - 0.5));
+        setMessage('Solve this!');
         setWrongBtn(null);
         setCorrectBtn(null);
-        setShowHint(false);
+    }, [difficulty, gameType]);
 
-        // Speak the problem
-        const opWord = op === '+' ? 'plus' : op === '-' ? 'minus' : 'times';
-        setTimeout(() => speak(`${n1} ${opWord} ${n2} equals?`), 300);
-    }, [difficulty, gameType, speak]);
+    useEffect(() => { generateProblem(); }, [generateProblem]);
 
     const checkAnswer = (selected) => {
-        const ans = getAnswer(num1, num2, operator);
-        if (selected === ans) {
+        if (selected === problem.a) {
             const newScore = score + 1;
-            playCorrect();
-            setCorrectBtn(selected);
-            const msg = ENCOURAGEMENTS[Math.floor(Math.random() * ENCOURAGEMENTS.length)];
-            setMessage(msg);
-            speak(msg);
             setScore(newScore);
+            setCorrectBtn(selected);
+            setMessage('Correct! 🎉');
+            playCorrect();
+            speak('Correct!');
             if (onScoreSave) onScoreSave(newScore);
+
             if (isMilestone(newScore)) {
                 setShowCelebration(true);
             } else {
-                setTimeout(generateProblem, 1600);
+                setTimeout(generateProblem, 1000);
             }
         } else {
-            playWrong();
             setWrongBtn(selected);
-            setMessage('Not quite! Try again! 🤔');
+            setMessage('Try again! 🤔');
+            playWrong();
             speak('Try again!');
             setTimeout(() => setWrongBtn(null), 700);
         }
     };
 
-    const emoji1 = operator === '×' ? '🌟' : '🪐';
-    const emoji2 = operator === '×' ? '🌟' : '⭐';
-
-    const getTitle = () => {
-        if (gameType === 'addition') return 'Add the Numbers! ➕';
-        if (gameType === 'subtraction') return 'Subtract the Numbers! ➖';
-        if (gameType === 'multiplication') return 'Multiply the Numbers! ✖️';
-        return 'Math Fun! 🔢';
-    };
-
     return (
-        <div className="game-container" ref={gameRef}>
+        <div className="min-h-screen bg-slate-950 pt-20 px-4 flex flex-col items-center">
             {showCelebration && (
                 <CelebrationOverlay score={score} onDone={() => { setShowCelebration(false); generateProblem(); }} />
             )}
@@ -176,63 +165,70 @@ const MathGame = ({ difficulty, onBack, onScoreSave, gameType }) => {
                 />
             )}
 
-            <div className="game-topbar">
-                <div className="game-controls-left">
-                    <button className="back-btn" onClick={onBack}>⬅ Back</button>
-                    <button className="end-game-btn" onClick={() => setShowScore(true)}>❌ End Game</button>
-                    <button className="capture-btn" onClick={handleScreenCapture}>📸 Capture</button>
-                </div>
-                <div className="score-board">⭐ {score}</div>
-                <button className="sound-toggle" onClick={() => setSoundOn(s => !s)}>{soundOn ? '🔊' : '🔇'}</button>
-            </div>
-
-            <h2>{getTitle()}</h2>
-
-            <div className="math-problem">
-                <div className="number-group">
-                    <span className="num-display">{num1}</span>
-                    <div className="visual-aid">{emoji1.repeat(Math.min(num1, 12))}</div>
-                </div>
-                <div className="operator">{operator}</div>
-                <div className="number-group">
-                    <span className="num-display">{num2}</span>
-                    <div className="visual-aid">{emoji2.repeat(Math.min(num2, 12))}</div>
-                </div>
-                <div className="operator">=</div>
-                <div className="question-mark">?</div>
-            </div>
-
-            {showHint && (
-                <div className="math-hint">
-                    💡
-                    {gameType === 'multiplication' ? (
-                        <span> {num1} groups of {num2}!</span>
-                    ) : (
-                        <span> Count the emojis!</span>
-                    )}
-                    <div className="hint-emojis">
-                        {gameType === 'multiplication' ? (
-                            // Visualizing multiplication groups could be complex, keeping simple for now
-                            emoji1.repeat(Math.min(num1 * num2, 15))
-                        ) : (
-                            <>
-                                {emoji1.repeat(Math.min(num1, 12))}{' '}
-                                {operator === '-' ? '' : emoji2.repeat(Math.min(num2, 12))}
-                            </>
-                        )}
-                    </div>
-                </div>
-            )}
-
-            <button className="hint-btn" onClick={() => { setShowHint(h => !h); speak('Here is a hint!'); }}>
-                {showHint ? '🙈 Hide Hint' : '💡 Show Hint'}
-            </button>
-
-            <div className="options-container">
-                {options.map(opt => (
+            {/* Top Bar */}
+            <div className="w-full max-w-4xl flex items-center justify-between mb-8">
+                <div className="flex gap-3">
                     <button
-                        key={opt}
-                        className={`option-btn ${correctBtn === opt ? 'correct' : ''} ${wrongBtn === opt ? 'wrong' : ''}`}
+                        onClick={onBack}
+                        className="px-4 py-2 bg-slate-800/50 hover:bg-slate-700 text-white rounded-xl font-bold border border-white/10 transition-colors"
+                    >
+                        ⬅ Back
+                    </button>
+                    <button
+                        onClick={() => setShowScore(true)}
+                        className="px-4 py-2 bg-red-500/20 hover:bg-red-500/40 text-red-300 rounded-xl font-bold border border-red-500/20 transition-colors"
+                    >
+                        ❌ End
+                    </button>
+                </div>
+
+                <div className="px-6 py-2 bg-yellow-500/20 border border-yellow-500/40 rounded-full">
+                    <span className="text-xl font-bold text-yellow-400">⭐ {score}</span>
+                </div>
+
+                <div className="flex gap-2">
+                    <button
+                        className={`p-3 rounded-xl transition-all ${isListening ? 'bg-red-500 animate-pulse text-white' : 'bg-slate-800 text-slate-400 hover:text-white'}`}
+                        onClick={toggleVoiceInput}
+                        title="Voice Answer"
+                    >
+                        {isListening ? '🎤' : '🎙️'}
+                    </button>
+                    <button
+                        className="p-3 bg-slate-800 text-slate-400 hover:text-white rounded-xl transition-colors"
+                        onClick={() => setSoundOn(s => !s)}
+                        title="Toggle Sound"
+                    >
+                        {soundOn ? '🔊' : '🔇'}
+                    </button>
+                </div>
+            </div>
+
+            <h2 className={`text-3xl md:text-4xl font-black mb-8 text-transparent bg-clip-text bg-gradient-to-r ${getColor()} animate-pulse`}>
+                {getTitle()}
+            </h2>
+
+            {/* Problem Card */}
+            <div className="glass-panel p-12 mb-12 transform hover:scale-105 transition-transform duration-300">
+                <div className={`text-6xl md:text-8xl font-black bg-gradient-to-br ${getColor()} bg-clip-text text-transparent drop-shadow-lg`}>
+                    {problem.q.replace('?', '')} <span className="text-white animate-pulse">?</span>
+                </div>
+            </div>
+
+            {/* Options Grid */}
+            <div className="grid grid-cols-3 gap-6 animate-fade-in-up w-full max-w-2xl">
+                {options.map((opt, i) => (
+                    <button
+                        key={i}
+                        className={`
+                            h-24 md:h-32 text-3xl md:text-5xl font-bold rounded-2xl border-4 transition-all duration-200 shadow-xl
+                            ${correctBtn === opt
+                                ? 'bg-green-500 border-green-400 text-white scale-110 shadow-green-500/50'
+                                : wrongBtn === opt
+                                    ? 'bg-red-500 border-red-400 text-white animate-shake'
+                                    : 'bg-slate-800 border-slate-600 text-white hover:border-cyan-400 hover:bg-slate-700 hover:scale-105'
+                            }
+                        `}
                         onClick={() => checkAnswer(opt)}
                     >
                         {opt}
@@ -240,7 +236,14 @@ const MathGame = ({ difficulty, onBack, onScoreSave, gameType }) => {
                 ))}
             </div>
 
-            {message && <div className={`message ${correctBtn !== null ? 'success' : ''}`}>{message}</div>}
+            {/* Message Area */}
+            {message && (
+                <div className={`mt-12 text-2xl md:text-3xl font-black text-center animate-fade-in
+                    ${correctBtn !== null ? 'text-green-400' : 'text-slate-200'}
+                `}>
+                    {message}
+                </div>
+            )}
         </div>
     );
 };

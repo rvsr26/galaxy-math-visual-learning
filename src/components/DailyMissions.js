@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import './DailyMissions.css';
 
 const DailyMissions = ({ user, coins, onClaimReward }) => {
     const [missions, setMissions] = useState([]);
@@ -37,25 +36,51 @@ const DailyMissions = ({ user, coins, onClaimReward }) => {
     };
 
     return (
-        <div className={`missions-widget ${isOpen ? 'open' : ''}`}>
-            <button className="missions-toggle" onClick={() => setIsOpen(!isOpen)}>
-                📜 Missions
+        <div className={`relative z-50 transition-all duration-300 ${isOpen ? 'w-64' : 'w-auto'}`}>
+            <button
+                className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-4 py-2 rounded-full font-bold shadow-lg hover:shadow-orange-500/50 transition-all flex items-center gap-2 border border-white/20"
+                onClick={() => setIsOpen(!isOpen)}
+            >
+                <span>📜</span>
+                {isOpen && <span>Daily Missions</span>}
             </button>
 
             {isOpen && (
-                <div className="missions-list">
-                    <h3>Daily Tasks</h3>
-                    {missions.map(m => (
-                        <div key={m.id} className="mission-item">
-                            <span>{m.text}</span>
-                            <button
-                                disabled={m.progress < m.target || m.claimed}
-                                onClick={() => handleClaim(m.id)}
-                            >
-                                {m.claimed ? '✅' : `Claim ${m.reward}`}
-                            </button>
-                        </div>
-                    ))}
+                <div className="absolute top-12 left-0 w-80 bg-slate-900/90 backdrop-blur-xl border border-white/20 rounded-2xl p-4 shadow-2xl animate-fade-in-down">
+                    <div className="flex justify-between items-center mb-4">
+                        <h3 className="text-lg font-bold text-white">Daily Tasks</h3>
+                        <span className="text-xs text-slate-400">Resets at midnight</span>
+                    </div>
+
+                    <div className="space-y-3">
+                        {missions.map(m => (
+                            <div key={m.id} className="bg-white/5 rounded-xl p-3 border border-white/10 flex items-center justify-between group hover:bg-white/10 transition-colors">
+                                <div className="flex-1 mr-3">
+                                    <p className="text-sm font-medium text-slate-200">{m.text}</p>
+                                    <div className="w-full bg-slate-700 h-1.5 rounded-full mt-2 overflow-hidden">
+                                        <div
+                                            className="bg-green-500 h-full rounded-full transition-all duration-500"
+                                            style={{ width: `${Math.min(100, (m.progress / m.target) * 100)}%` }}
+                                        ></div>
+                                    </div>
+                                </div>
+                                <button
+                                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all
+                                        ${m.claimed
+                                            ? 'bg-green-500/20 text-green-400 cursor-default'
+                                            : m.progress >= m.target
+                                                ? 'bg-yellow-500 hover:bg-yellow-400 text-black shadow-[0_0_10px_rgba(234,179,8,0.5)] animate-pulse'
+                                                : 'bg-slate-700 text-slate-400 cursor-not-allowed'
+                                        }
+                                    `}
+                                    disabled={m.progress < m.target || m.claimed}
+                                    onClick={() => handleClaim(m.id)}
+                                >
+                                    {m.claimed ? 'Done ✅' : `+${m.reward} 💰`}
+                                </button>
+                            </div>
+                        ))}
+                    </div>
                 </div>
             )}
         </div>

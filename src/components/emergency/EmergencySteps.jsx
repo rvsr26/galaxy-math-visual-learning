@@ -22,11 +22,11 @@ export default function EmergencySteps() {
 
   if (!emergency) {
     return (
-      <div className="text-center py-20">
-        <h2 className="text-2xl font-bold text-gray-800">Emergency not found</h2>
+      <div className="text-center py-20 text-white">
+        <h2 className="text-2xl font-bold mb-4">Emergency not found</h2>
         <button
           onClick={() => navigate("/emergency")}
-          className="mt-4 text-blue-600 hover:text-blue-800 underline"
+          className="text-blue-400 hover:text-blue-300 underline"
         >
           Return Home
         </button>
@@ -85,50 +85,51 @@ export default function EmergencySteps() {
       initial={reduceMotion ? false : { opacity: 0, scale: 0.95 }}
       animate={reduceMotion ? false : { opacity: 1, scale: 1 }}
       transition={{ duration: 0.5 }}
-      className="max-w-3xl mx-auto"
+      className="max-w-4xl mx-auto"
     >
-      <div className="glass rounded-[2.5rem] p-8 sm:p-12 relative overflow-hidden">
+      <div className="bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-[2.5rem] p-8 sm:p-12 relative overflow-hidden shadow-2xl">
 
         {/* Back Button */}
         <button
           onClick={() => navigate("/emergency")}
           className="
             absolute top-8 left-8
-            text-blue-600 font-semibold hover:text-blue-800 
-            transition-colors flex items-center gap-2
+            px-4 py-2 rounded-xl bg-slate-800/50 hover:bg-slate-700
+            text-slate-300 hover:text-white font-bold 
+            transition-all border border-white/5 flex items-center gap-2
           "
         >
           <span className="text-xl">←</span> Back
         </button>
 
         {/* Title Area */}
-        <div className="text-center mt-8 mb-8">
-          <div className="text-6xl mb-4 filter drop-shadow-md">{emergency.icon}</div>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 font-display">
+        <div className="text-center mt-12 mb-10">
+          <div className="text-7xl mb-6 filter drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">{emergency.icon}</div>
+          <h2 className="text-3xl sm:text-5xl font-black text-white tracking-tight mb-6">
             {emergency.title}
           </h2>
 
           {/* Emergency Number */}
-          <div className="inline-flex items-center gap-2 mt-4 px-5 py-2 rounded-full bg-red-50 text-red-600 border border-red-100 font-bold shadow-sm">
+          <div className="inline-flex items-center gap-3 px-6 py-3 rounded-2xl bg-red-500/10 text-red-400 border border-red-500/20 font-bold shadow-lg shadow-red-900/10">
             <span>📞 Emergency ID:</span>
-            <span className="text-xl">{emergency.emergencyNumber}</span>
+            <span className="text-2xl text-red-300">{emergency.emergencyNumber}</span>
           </div>
         </div>
 
         {/* Calm Tip */}
         {emergency.calmTip && (
-          <div className="mb-8 p-4 rounded-2xl bg-blue-50/80 border border-blue-100 text-blue-800 text-center font-medium">
+          <div className="mb-10 p-5 rounded-2xl bg-blue-500/10 border border-blue-400/20 text-blue-200 text-center font-medium text-lg shadow-inner">
             💙 {emergency.calmTip}
           </div>
         )}
 
         {/* Focus Step Card */}
-        <div className="relative z-10 bg-white/60 backdrop-blur-xl border border-white/60 rounded-3xl p-8 sm:p-10 shadow-lg mb-10 text-center">
-          <div className="text-sm font-bold tracking-widest text-gray-400 uppercase mb-4">
+        <div className="relative z-10 bg-slate-800/50 backdrop-blur-md border border-white/10 rounded-3xl p-8 sm:p-12 shadow-xl mb-12 text-center">
+          <div className="text-sm font-bold tracking-widest text-slate-500 uppercase mb-6">
             Step {stepIndex + 1} of {emergency.steps.length}
           </div>
 
-          <p className="text-2xl sm:text-3xl font-bold text-gray-800 mb-8 leading-tight">
+          <p className="text-2xl sm:text-4xl font-bold text-white mb-10 leading-snug">
             {emergency.steps[stepIndex]}
           </p>
 
@@ -137,9 +138,9 @@ export default function EmergencySteps() {
               onClick={prevStep}
               disabled={stepIndex === 0}
               className="
-                px-6 py-3 rounded-xl font-semibold transition-all
+                px-6 py-4 rounded-xl font-bold transition-all
                 disabled:opacity-30 disabled:cursor-not-allowed
-                bg-gray-100 hover:bg-gray-200 text-gray-600
+                bg-slate-700 hover:bg-slate-600 text-slate-200 border border-white/5
               "
             >
               Previous
@@ -148,20 +149,20 @@ export default function EmergencySteps() {
             <button
               onClick={() => speak(emergency.steps[stepIndex])}
               className="
-                px-8 py-4 rounded-xl font-bold text-white shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all
-                bg-gradient-to-r from-blue-500 to-indigo-600
+                px-8 py-4 rounded-xl font-bold text-white shadow-lg hover:shadow-cyan-500/20 hover:-translate-y-1 transition-all
+                bg-gradient-to-r from-cyan-500 to-blue-600 border border-white/20 flex items-center gap-2
               "
             >
-              🔊 Read Aloud
+              <span className="text-xl">🔊</span> Read Aloud
             </button>
 
             <button
               onClick={nextStep}
               disabled={stepIndex === emergency.steps.length - 1}
               className="
-                px-6 py-3 rounded-xl font-semibold transition-all
+                px-6 py-4 rounded-xl font-bold transition-all
                 disabled:opacity-30 disabled:cursor-not-allowed
-                bg-emerald-500 hover:bg-emerald-600 text-white shadow-md hover:shadow-lg
+                bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg border border-white/10
               "
             >
               Next Step
@@ -170,26 +171,26 @@ export default function EmergencySteps() {
         </div>
 
         {/* Do & Don’t Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
 
           {/* DO */}
-          <div className="bg-emerald-50/50 border border-emerald-100 p-6 rounded-3xl">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="font-bold text-lg text-emerald-800 flex items-center gap-2">
-                <span className="text-xl">✅</span>  Do This
+          <div className="bg-emerald-500/5 border border-emerald-500/10 p-8 rounded-3xl hover:bg-emerald-500/10 transition-colors">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="font-bold text-xl text-emerald-400 flex items-center gap-3">
+                <span className="text-2xl">✅</span>  Do This
               </h3>
               <button
                 onClick={speakDos}
-                className="p-2 rounded-full bg-emerald-100 text-emerald-700 hover:bg-emerald-200 transition"
+                className="p-3 rounded-full bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 transition shadow-sm"
                 aria-label="Read Do's"
               >
                 🔊
               </button>
             </div>
-            <ul className="space-y-3">
+            <ul className="space-y-4">
               {emergency.do?.map((item, i) => (
-                <li key={i} className="flex items-start gap-2 text-emerald-900/80">
-                  <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0" />
+                <li key={i} className="flex items-start gap-3 text-slate-300 text-lg">
+                  <span className="mt-2 w-2 h-2 rounded-full bg-emerald-400 shrink-0 shadow-[0_0_8px_rgba(52,211,153,0.6)]" />
                   <span>{item}</span>
                 </li>
               ))}
@@ -197,23 +198,23 @@ export default function EmergencySteps() {
           </div>
 
           {/* DON’T */}
-          <div className="bg-red-50/50 border border-red-100 p-6 rounded-3xl">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="font-bold text-lg text-red-800 flex items-center gap-2">
-                <span className="text-xl">❌</span> Avoid This
+          <div className="bg-red-500/5 border border-red-500/10 p-8 rounded-3xl hover:bg-red-500/10 transition-colors">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="font-bold text-xl text-red-400 flex items-center gap-3">
+                <span className="text-2xl">❌</span> Avoid This
               </h3>
               <button
                 onClick={speakDonts}
-                className="p-2 rounded-full bg-red-100 text-red-700 hover:bg-red-200 transition"
+                className="p-3 rounded-full bg-red-500/20 text-red-400 hover:bg-red-500/30 transition shadow-sm"
                 aria-label="Read Don'ts"
               >
                 🔊
               </button>
             </div>
-            <ul className="space-y-3">
+            <ul className="space-y-4">
               {emergency.dont?.map((item, i) => (
-                <li key={i} className="flex items-start gap-2 text-red-900/80">
-                  <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-red-400 shrink-0" />
+                <li key={i} className="flex items-start gap-3 text-slate-300 text-lg">
+                  <span className="mt-2 w-2 h-2 rounded-full bg-red-400 shrink-0 shadow-[0_0_8px_rgba(248,113,113,0.6)]" />
                   <span>{item}</span>
                 </li>
               ))}
@@ -222,24 +223,43 @@ export default function EmergencySteps() {
         </div>
 
         {/* Call Action */}
-        <div className="mt-10">
+        {/* Actions Grid */}
+        <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-6">
+
+          {/* Call Button */}
           <button
             onClick={() => {
               window.location.href = `tel:${emergency.emergencyNumber}`;
-              navigate("/report");
             }}
             className="
-              w-full py-5 rounded-2xl
-              bg-red-600 text-white text-xl font-bold tracking-wide
-              shadow-lg shadow-red-500/30
-              hover:bg-red-700 hover:shadow-xl hover:-translate-y-1
+              w-full py-6 rounded-2xl
+              bg-gradient-to-r from-red-600 to-red-700 text-white text-xl sm:text-2xl font-black tracking-wide
+              shadow-lg shadow-red-900/30 border border-white/10
+              hover:from-red-500 hover:to-red-600 hover:shadow-2xl hover:shadow-red-900/50 hover:-translate-y-1
               transition-all duration-300
               flex items-center justify-center gap-3
             "
           >
-            <span className="text-2xl animate-pulse">📞</span>
-            Call Emergency Now
+            <span className="text-3xl animate-pulse">📞</span>
+            <span>Call Emergency</span>
           </button>
+
+          {/* Complaint/Report Button */}
+          <button
+            onClick={() => navigate("/emergency/report")}
+            className="
+              w-full py-6 rounded-2xl
+              bg-gradient-to-r from-slate-700 to-slate-800 text-white text-xl sm:text-2xl font-black tracking-wide
+              shadow-lg shadow-slate-900/30 border border-white/10
+              hover:from-slate-600 hover:to-slate-700 hover:shadow-2xl hover:-translate-y-1
+              transition-all duration-300
+              flex items-center justify-center gap-3
+            "
+          >
+            <span className="text-3xl">📝</span>
+            <span>Submit Complaint</span>
+          </button>
+
         </div>
 
       </div>

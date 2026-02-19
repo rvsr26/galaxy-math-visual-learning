@@ -10,15 +10,19 @@ import CountingGame from "./components/CountingGame";
 import MathGame from "./components/MathGame";
 import PatternGame from "./components/PatternGame";
 import MemoryGame from "./components/MemoryGame";
+import DivisionGame from "./components/DivisionGame";
+import FractionGame from "./components/FractionGame";
 import LearningMode from "./components/LearningMode";
 import SplashScreen from "./components/SplashScreen";
 import AuthPage from "./components/AuthPage";
 import Leaderboard from "./components/Leaderboard";
 import AboutPage from "./components/AboutPage";
 import Navbar from "./components/Navbar";
+import HowItWorksLab2 from "./components/HowItWorksLab2";
 import { useSound } from "./components/useSound";
+import API_BASE_URL from "./config";
 
-const API = 'http://localhost:5000/api/scores';
+const API = `${API_BASE_URL}/api/scores`;
 
 
 
@@ -33,7 +37,7 @@ export default function App() {
 
 
 
-const ALL_PLANETS = ['learning', 'counting', 'pattern', 'addition', 'subtraction', 'multiplication', 'memory'];
+const ALL_PLANETS = ['learning', 'counting', 'pattern', 'addition', 'subtraction', 'multiplication', 'division', 'fraction', 'memory'];
 
 function GameContainer() {
   const [currentPage, setCurrentPage] = useState(null); // null = home/game menu
@@ -57,7 +61,7 @@ function GameContainer() {
 
   const fetchProfile = async (token) => {
     try {
-      const res = await fetch(`http://localhost:5000/api/user/profile`, {
+      const res = await fetch(`${API_BASE_URL}/api/user/profile`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await res.json();
@@ -103,7 +107,7 @@ function GameContainer() {
 
       // Add coins logic (simple: 10 coins per win)
       if (score >= 5) { // Threshold for winning
-        await fetch(`http://localhost:5000/api/user/add-coins`, {
+        await fetch(`${API_BASE_URL}/api/user/add-coins`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
           body: JSON.stringify({ amount: 10 })
@@ -112,12 +116,12 @@ function GameContainer() {
       }
 
       // Unlock next planet logic
-      const planets = ['learning', 'counting', 'pattern', 'addition', 'subtraction', 'multiplication', 'memory'];
+      const planets = ['learning', 'counting', 'pattern', 'addition', 'subtraction', 'multiplication', 'division', 'fraction', 'memory'];
       const currentIdx = planets.indexOf(game);
       if (currentIdx !== -1 && currentIdx < planets.length - 1) {
         const nextPlanet = planets[currentIdx + 1];
         if (!unlockedPlanets.includes(nextPlanet) && score >= 5) {
-          await fetch(`http://localhost:5000/api/user/unlock-planet`, {
+          await fetch(`${API_BASE_URL}/api/user/unlock-planet`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
             body: JSON.stringify({ planet: nextPlanet })
@@ -135,7 +139,7 @@ function GameContainer() {
     const token = localStorage.getItem('token');
     if (!token) return;
     try {
-      await fetch(`http://localhost:5000/api/user/add-coins`, {
+      await fetch(`${API_BASE_URL}/api/user/add-coins`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify({ amount })
@@ -176,6 +180,9 @@ function GameContainer() {
     if (currentPage === 'about') {
       return <AboutPage onBack={() => setCurrentPage(null)} />;
     }
+    if (currentPage === 'how-it-works') {
+      return <HowItWorksLab2 onBack={() => setCurrentPage(null)} />;
+    }
     if (currentPage === 'avatar') {
       return <AvatarStation
         user={user}
@@ -203,6 +210,10 @@ function GameContainer() {
         return <PatternGame difficulty={difficulty} onBack={() => setCurrentGame(null)} onScoreSave={(s) => handleScoreSave('pattern', s)} />;
       case 'memory':
         return <MemoryGame difficulty={difficulty} onBack={() => setCurrentGame(null)} onScoreSave={(s) => handleScoreSave('memory', s)} />;
+      case 'division':
+        return <DivisionGame difficulty={difficulty} onBack={() => setCurrentGame(null)} onScoreSave={(s) => handleScoreSave('division', s)} />;
+      case 'fraction':
+        return <FractionGame difficulty={difficulty} onBack={() => setCurrentGame(null)} onScoreSave={(s) => handleScoreSave('fraction', s)} />;
       case 'learning':
         return <LearningMode onBack={() => setCurrentGame(null)} />;
       default:

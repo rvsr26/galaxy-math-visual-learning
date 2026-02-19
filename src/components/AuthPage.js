@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import './AuthPage.css';
+import API_BASE_URL from '../config';
 
-const API = 'http://localhost:5000/api/auth';
+const API = `${API_BASE_URL}/api/auth`;
 
 const AuthPage = ({ onLogin }) => {
     const [mode, setMode] = useState('login'); // 'login' | 'register'
@@ -9,6 +10,7 @@ const AuthPage = ({ onLogin }) => {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -33,6 +35,29 @@ const AuthPage = ({ onLogin }) => {
         }
     };
 
+    const handleGuestLogin = async () => {
+        setError('');
+        setLoading(true);
+        try {
+            const res = await fetch(`${API}/guest`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Guest login failed');
+
+            localStorage.setItem('token', data.token);
+            localStorage.setItem('username', data.username);
+            localStorage.setItem('streak', data.streak); // Guests start at 0
+            onLogin({ username: data.username, streak: data.streak });
+        } catch (err) {
+            setError(err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+
     return (
         <div className="auth-overlay">
             <div className="auth-card">
@@ -50,6 +75,7 @@ const AuthPage = ({ onLogin }) => {
                         onClick={() => { setMode('register'); setError(''); }}
                     >Register</button>
                 </div>
+
 
                 <form onSubmit={handleSubmit} className="auth-form">
                     <div className="auth-field">
@@ -78,7 +104,21 @@ const AuthPage = ({ onLogin }) => {
                     <button type="submit" className="auth-submit" disabled={loading}>
                         {loading ? '⏳ Please wait...' : mode === 'login' ? '🚀 Let\'s Play!' : '🎉 Create Account'}
                     </button>
+
+                    <div className="auth-divider">
+                        <span>OR</span>
+                    </div>
+
+                    <button
+                        type="button"
+                        className="auth-guest-btn"
+                        onClick={handleGuestLogin}
+                        disabled={loading}
+                    >
+                        👽 Continue as Guest
+                    </button>
                 </form>
+
             </div>
         </div>
     );

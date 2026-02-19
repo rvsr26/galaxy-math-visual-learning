@@ -42,4 +42,28 @@ router.post('/login', async (req, res) => {
     }
 });
 
+
+// POST /api/auth/guest
+router.post('/guest', async (req, res) => {
+    try {
+        const username = `Guest_${Date.now()}`;
+        const password = Math.random().toString(36).slice(-8);
+        const passwordHash = await bcrypt.hash(password, 10);
+
+        const user = new User({
+            username,
+            passwordHash,
+            isGuest: true // Optional: track guest users if needed in schema later
+            // Default values from schema will handle the rest
+        });
+        await user.save();
+
+        const token = jwt.sign({ userId: user._id, username: user.username }, process.env.JWT_SECRET, { expiresIn: '1d' }); // Short expire for guests? 7d is fine too.
+        res.status(201).json({ token, username: user.username, streak: user.streak });
+    } catch (err) {
+        console.error("Guest login error:", err);
+        res.status(500).json({ error: 'Server error during guest login' });
+    }
+});
+
 module.exports = router;
